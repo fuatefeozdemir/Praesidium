@@ -21,6 +21,16 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Data/CoreData/AppState.h
         include/Interface/UI/CoreUI/MainMenuSystem.h
         src/Interface/UI/CoreUI/MainMenuSystem.cpp
+        include/Engine/Core/CameraManager.h
+        src/Engine/Core/CameraManager.cpp
+        include/Data/EntityData/PlayerData.h
+        include/Systems/Simulation/PlayerSystem.h
+        src/Systems/Simulation/PlayerSystem.cpp
+        include/Data/WorldData/MapData.h
+        include/Systems/Simulation/MapSystem.h
+        src/Systems/Simulation/MapSystem.cpp
+        include/Interface/World/MapRenderer.h
+        src/Interface/World/MapRenderer.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)
