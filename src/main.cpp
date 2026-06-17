@@ -1,45 +1,26 @@
 #include "raylib.h"
-#include <vector>
-#include "../include/Engine/AppState.h"
-#include "../include/Engine/WindowManager.h"
-#include "../include/Interface/UIData.h"
-#include "../include/Interface/MenuController.h"
-#include "../include/Interface/RenderLayer.h"
+#include "../include/Data/CoreData/AppState.h"
+#include "../include/Engine/Core/WindowManager.h"
+#include "../include/Interface/UI/CoreUI/MainMenuSystem.h"
 
 int main() {
     WindowManager::Initialize();
+    Interface::UI::CoreUI::MainMenuSystem::Initialize();
 
     AppState currentState = AppState::MAIN_MENU;
 
-    // --- ARAYÜZ VERİLERİNİN OLUŞTURULMASI ---
-    // Ekran genişliği 1280. Ortalamak için: (1280 / 2) - (200 / 2) = 540
-    std::vector<UI::Button> mainMenuButtons = {
-        {{540, 300, 200, 50}, "OYUNA BASLA", UI::ButtonState::NORMAL},
-        {{540, 380, 200, 50}, "CIKIS", UI::ButtonState::NORMAL}
-    };
-
     while (!WindowShouldClose() && currentState != AppState::EXIT_REQUESTED) {
 
-        // --- Global Girdiler ---
+        // --- GLOBAL GİRDİLER ---
         if (IsKeyPressed(KEY_F11)) {
             ToggleFullscreen();
         }
 
-        // --- Güncelleme Kontrolleri ---
+        // --- GÜNCELLEME KONTROLLERİ ---
         switch (currentState) {
-            case AppState::MAIN_MENU: {
-                int currentWidth = GetScreenWidth();
-                int currentHeight = GetScreenHeight();
-
-                mainMenuButtons[0].bounds.x = (currentWidth / 2.0f) - (mainMenuButtons[0].bounds.width / 2.0f);
-                mainMenuButtons[0].bounds.y = (currentHeight / 2.0f) - 60.0f;
-
-                mainMenuButtons[1].bounds.x = (currentWidth / 2.0f) - (mainMenuButtons[1].bounds.width / 2.0f);
-                mainMenuButtons[1].bounds.y = (currentHeight / 2.0f) + 20.0f;
-
-                Interface::UpdateMainMenu(mainMenuButtons, currentState);
+            case AppState::MAIN_MENU:
+                Interface::UI::CoreUI::MainMenuSystem::Update(currentState);
                 break;
-            }
             case AppState::ACTIVE_SIMULATION:
                 if (IsKeyPressed(KEY_ESCAPE)) currentState = AppState::PAUSED;
                 break;
@@ -51,13 +32,13 @@ int main() {
                 break;
         }
 
-        // --- Render ---
+        // --- ÇİZİM İŞLEMLERİ ---
         BeginDrawing();
         ClearBackground(BLACK);
 
         switch (currentState) {
             case AppState::MAIN_MENU:
-                Interface::DrawMainMenu(mainMenuButtons);
+                Interface::UI::CoreUI::MainMenuSystem::Draw();
                 break;
             case AppState::ACTIVE_SIMULATION:
                 ClearBackground(DARKGREEN);

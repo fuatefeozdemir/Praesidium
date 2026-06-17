@@ -1,5 +1,5 @@
-#include "../../include/Engine/WindowManager.h"
-#include "../../include/Engine/Configuration.h"
+#include "../../../include/Engine/Core/WindowManager.h"
+#include "../../../include/Data/CoreData/Configuration.h"
 #include "raylib.h"
 
 namespace WindowManager {
