@@ -16,6 +16,12 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
 
 # Bulunan tüm dosyaları derleyiciye tek seferde teslim eder
-add_executable(Praesidium ${SOURCES} ${HEADERS})
+add_executable(Praesidium ${SOURCES} ${HEADERS}
+        include/Interface/UIData.h
+        include/Interface/MenuController.h
+        src/Interface/MenuController.cpp
+        include/Interface/RenderLayer.h
+        src/Interface/RenderLayer.cpp
+)
 
 target_link_libraries(Praesidium PRIVATE raylib)
