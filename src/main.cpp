@@ -10,6 +10,11 @@ int main() {
 
     // Ana Oyun Döngüsü
     while (!WindowShouldClose() && currentState != AppState::EXIT_REQUESTED) {
+
+        if (IsKeyPressed(KEY_F11)) {
+            ToggleFullscreen();
+        }
+
         // --- Güncelleme Kontrolleri ---
         switch (currentState) {
             case AppState::MAIN_MENU:

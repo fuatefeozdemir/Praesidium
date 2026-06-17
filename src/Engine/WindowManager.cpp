@@ -4,18 +4,10 @@
 
 namespace WindowManager {
     void Initialize() {
-        // Pencereyi başlat ve monitör boyutuna göre ayarla
+        SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(Config::DEFAULT_WINDOW_WIDTH, Config::DEFAULT_WINDOW_HEIGHT, Config::WINDOW_TITLE);
-
-        int currentMonitor = GetCurrentMonitor();
-        int monitorWidth = GetMonitorWidth(currentMonitor);
-        int monitorHeight = GetMonitorHeight(currentMonitor);
-
-        SetWindowSize(monitorWidth, monitorHeight);
-        ToggleFullscreen();
         SetTargetFPS(Config::TARGET_FPS);
-
-        SetExitKey(0); // Raylib'in varsayılan ESC ile kapatma özelliğini devre dışı bırak
+        SetExitKey(0);
     }
 
     void Close() {
