@@ -11,6 +11,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
-add_executable(Praesidium main.cpp)
+# src ve include klasörlerinin içindeki (ve alt klasörlerindeki) tüm dosyaları otomatik bulur
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
+
+# Bulunan tüm dosyaları derleyiciye tek seferde teslim eder
+add_executable(Praesidium ${SOURCES} ${HEADERS})
 
 target_link_libraries(Praesidium PRIVATE raylib)
