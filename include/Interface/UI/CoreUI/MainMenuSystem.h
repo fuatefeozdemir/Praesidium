@@ -6,5 +6,6 @@ namespace Interface::UI::CoreUI {
         void Initialize();
         void Update(AppState& currentState);
         void Draw();
+        void Close();
     }
 }

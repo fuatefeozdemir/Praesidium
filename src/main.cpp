@@ -96,6 +96,7 @@ int main() {
         EndDrawing();
     }
 
+    Interface::UI::CoreUI::MainMenuSystem::Close();
     WindowManager::Close();
     return 0;
 }

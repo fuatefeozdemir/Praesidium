@@ -1,100 +1,100 @@
 #include "../../../../include/Interface/UI/CoreUI/MainMenuSystem.h"
-#include "../../../../include/Data/UIData/UIData.h"
 #include "raylib.h"
-#include <vector>
 
-namespace {
-    // Sadece bu dosyada yaşayan gizli (private) veriler
-    std::vector<::UI::Button> buttons;
-    ::UI::Theme theme;
+namespace Interface::UI::CoreUI::MainMenuSystem {
 
-    // Layout hesaplamasını yapan dahili yardımcı fonksiyon
-    void UpdateLayout() {
-        float screenW = (float)GetScreenWidth();
-        float screenH = (float)GetScreenHeight();
+    const int BUTTON_WIDTH = 400;
+    const int BUTTON_HEIGHT = 60;
+    const int BUTTON_SPACING = 20;
 
-        for (auto& btn : buttons) {
-            btn.bounds.width = btn.width;
-            btn.bounds.height = btn.height;
+    const Color PANEL_COLOR = { 5, 5, 5, 210 };
+    const Color TEXT_NORMAL = { 150, 150, 150, 255 };
+    const Color TEXT_HOVER = { 255, 255, 255, 255 };
 
-            if (btn.align == ::UI::Alignment::CENTER) {
-                btn.bounds.x = (screenW / 2.0f) - (btn.width / 2.0f) + btn.offsetX;
-                btn.bounds.y = (screenH / 2.0f) - (btn.height / 2.0f) + btn.offsetY;
-            }
+    Rectangle startButton;
+    Rectangle settingsButton;
+    Rectangle exitButton;
+
+    Font themeFont;
+    Font buttonFont;
+    Texture2D bgTexture;
+
+    void Initialize() {
+        int screenWidth = GetScreenWidth();
+        int screenHeight = GetScreenHeight();
+
+        themeFont = LoadFontEx(ASSETS_DIR "fonts/theme_font.ttf", 96, 0, 0);
+        SetTextureFilter(themeFont.texture, TEXTURE_FILTER_BILINEAR);
+
+        buttonFont = GetFontDefault();
+
+        bgTexture = LoadTexture(ASSETS_DIR "textures/bg_wood.png");
+
+        int totalButtonsHeight = (3 * BUTTON_HEIGHT) + (2 * BUTTON_SPACING);
+        int startY = (screenHeight - totalButtonsHeight) / 2 + 100;
+
+        startButton = { (float)(screenWidth - BUTTON_WIDTH) / 2, (float)startY, BUTTON_WIDTH, BUTTON_HEIGHT };
+        settingsButton = { (float)(screenWidth - BUTTON_WIDTH) / 2, (float)(startY + BUTTON_HEIGHT + BUTTON_SPACING), BUTTON_WIDTH, BUTTON_HEIGHT };
+        exitButton = { (float)(screenWidth - BUTTON_WIDTH) / 2, (float)(startY + (BUTTON_HEIGHT + BUTTON_SPACING) * 2), BUTTON_WIDTH, BUTTON_HEIGHT };
+    }
+
+    void Update(AppState& currentState) {
+        Vector2 mousePos = GetMousePosition();
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            if (CheckCollisionPointRec(mousePos, startButton)) currentState = AppState::ACTIVE_SIMULATION;
+            else if (CheckCollisionPointRec(mousePos, settingsButton)) { /* Ayarlar AppState::SETTINGS */ }
+            else if (CheckCollisionPointRec(mousePos, exitButton)) currentState = AppState::EXIT_REQUESTED;
         }
     }
-}
 
-namespace Interface::UI::CoreUI {
-    namespace MainMenuSystem {
-        
-        void Initialize() {
-            // Tema ve buton verilerini başlat
-            theme = { RAYWHITE, DARKGRAY, LIGHTGRAY, BLACK, WHITE, BLACK, BLACK };
+    void Draw() {
+        int screenWidth = GetScreenWidth();
+        int screenHeight = GetScreenHeight();
+        Vector2 mousePos = GetMousePosition();
 
-            buttons = {
-                {{0,0,0,0}, 200, 50, 0, -60, ::UI::Alignment::CENTER, "OYUNA BASLA", ::UI::ButtonState::NORMAL},
-                {{0,0,0,0}, 200, 50, 0, 20, ::UI::Alignment::CENTER, "CIKIS", ::UI::ButtonState::NORMAL}
-            };
+        ClearBackground(BLACK);
+
+        if (bgTexture.id != 0) {
+            Rectangle source = { 0.0f, 0.0f, (float)bgTexture.width, (float)bgTexture.height };
+            Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
+            DrawTexturePro(bgTexture, source, dest, Vector2{ 0, 0 }, 0.0f, WHITE);
         }
 
-        void Update(AppState& currentState) {
-            // Önce koordinatları ekrana göre güncelle
-            UpdateLayout();
+        int panelWidth = 500;
+        int panelX = (screenWidth - panelWidth) / 2;
+        DrawRectangle(panelX, 0, panelWidth, screenHeight, PANEL_COLOR);
 
-            // Sonra tıklama mantığını çalıştır
-            Vector2 mousePos = GetMousePosition();
+        const char* title = "PRAESIDIUM";
+        float fontSize = 72;
+        float fontSpacing = 10;
+        float titleWidth = MeasureTextEx(themeFont, title, fontSize, fontSpacing).x;
+        Vector2 titlePos = { (screenWidth - titleWidth) / 2.0f, 120.0f };
+        DrawTextEx(themeFont, title, titlePos, fontSize, fontSpacing, TEXT_HOVER);
 
-            for (auto& btn : buttons) {
-                if (CheckCollisionPointRec(mousePos, btn.bounds)) {
-                    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-                        btn.state = ::UI::ButtonState::PRESSED;
-                    } else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-                        if (btn.text == "OYUNA BASLA") currentState = AppState::ACTIVE_SIMULATION;
-                        else if (btn.text == "CIKIS") currentState = AppState::EXIT_REQUESTED;
-                        
-                        btn.state = ::UI::ButtonState::HOVERED;
-                    } else {
-                        btn.state = ::UI::ButtonState::HOVERED;
-                    }
-                } else {
-                    btn.state = ::UI::ButtonState::NORMAL;
-                }
+        auto DrawModernButton = [](Rectangle bounds, const char* text, Vector2 mouse, Font font) {
+            bool isHovered = CheckCollisionPointRec(mouse, bounds);
+            Color currentText = isHovered ? TEXT_HOVER : TEXT_NORMAL;
+
+            float textFontSize = 28;
+            float spacing = 2; // Modern font için harf aralığı düşürüldü
+            Vector2 textDim = MeasureTextEx(font, text, textFontSize, spacing);
+            Vector2 textPos = { bounds.x + (bounds.width - textDim.x) / 2.0f, bounds.y + (bounds.height - textDim.y) / 2.0f };
+
+            if (isHovered) {
+                DrawRectangle(bounds.x + 100, bounds.y + bounds.height - 10, bounds.width - 200, 2, TEXT_HOVER);
             }
-        }
 
-        void Draw() {
-            ClearBackground(theme.background);
-            DrawText("PRAESIDIUM", 50, 50, 40, DARKBLUE);
+            DrawTextEx(font, text, textPos, textFontSize, spacing, currentText);
+        };
 
-            for (const auto& btn : buttons) {
-                Color bgColor;
-                Color textColor;
+        DrawModernButton(startButton, "OYUNA BASLA", mousePos, buttonFont);
+        DrawModernButton(settingsButton, "AYARLAR", mousePos, buttonFont);
+        DrawModernButton(exitButton, "CIKIS", mousePos, buttonFont);
+    }
 
-                switch (btn.state) {
-                    case ::UI::ButtonState::NORMAL:  
-                        bgColor = theme.normal; 
-                        textColor = theme.textNormal;
-                        break;
-                    case ::UI::ButtonState::HOVERED: 
-                        bgColor = theme.hovered; 
-                        textColor = theme.textHovered; 
-                        break;
-                    case ::UI::ButtonState::PRESSED: 
-                        bgColor = theme.pressed; 
-                        textColor = theme.textNormal;
-                        break;
-                }
-
-                DrawRectangleRec(btn.bounds, bgColor);
-                DrawRectangleLinesEx(btn.bounds, 2.0f, theme.border);
-
-                int textWidth = MeasureText(btn.text.c_str(), 20);
-                int textX = btn.bounds.x + (btn.bounds.width / 2) - (textWidth / 2);
-                int textY = btn.bounds.y + (btn.bounds.height / 2) - 10;
-
-                DrawText(btn.text.c_str(), textX, textY, 20, textColor);
-            }
-        }
+    void Close() {
+        UnloadFont(themeFont);
+        UnloadTexture(bgTexture);
     }
 }
