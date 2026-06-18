@@ -21,8 +21,8 @@ namespace Data::WorldData {
     struct Tile {
         FloorType floor;
         OreType ore;
-        
-        int buildingID;
+
+        int buildingID = -1;
         bool isPassable;
     };
 

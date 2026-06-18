@@ -13,7 +13,7 @@ namespace Interface::World::MapRenderer {
                 int posY = y * map.tileSize;
 
                 // Zemin Rengi
-                Color tileColor = DARKGRAY; 
+                Color tileColor = DARKGRAY;
                 if (tile.floor == Data::WorldData::FloorType::DIRT) tileColor = BROWN;
                 else if (tile.floor == Data::WorldData::FloorType::SAND) tileColor = YELLOW;
                 else if (tile.floor == Data::WorldData::FloorType::WATER) tileColor = BLUE;

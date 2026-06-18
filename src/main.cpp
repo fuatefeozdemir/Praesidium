@@ -7,6 +7,7 @@
 #include "../include/Systems/Simulation/PlayerSystem.h"
 #include "../include/Systems/Simulation/MapSystem.h"
 #include "../include/Data/WorldData/MapData.h"
+#include "../include/Interface/World/BuildingRenderer.h"
 #include "../include/Interface/World/MapRenderer.h"
 
 int main() {
@@ -71,18 +72,17 @@ int main() {
                 // 1. Haritayı Çiz
                 Interface::World::MapRenderer::Draw(worldMap);
 
-                // 2. Karakteri Çiz
+                // 2. Binaları Çiz
+                Interface::World::BuildingRenderer::Draw(worldMap.tileSize);
+
+                // 3. Karakteri Çiz
                 DrawCircleV(player.position, player.collisionRadius, BLUE);
 
-                // 3. Farenin dünyadaki konumunu çiz
+                // 4. Farenin dünyadaki konumunu çiz
                 Vector2 worldMouse = Engine::Core::CameraManager::GetWorldMousePosition();
                 DrawCircleV(worldMouse, 5.0f, RED);
 
                 Engine::Core::CameraManager::EndWorldDrawing();
-
-                // Ekrana sabit UI çizimleri
-                DrawText("SIMULASYON CALISIYOR", 10, 10, 20, RAYWHITE);
-                DrawText(TextFormat("Durum: %s", player.state == Data::EntityData::PlayerActionState::MOVING ? "HAREKET EDIYOR" : "BEKLIYOR"), 10, 40, 20, LIGHTGRAY);
                 break;
             }
             case AppState::PAUSED:

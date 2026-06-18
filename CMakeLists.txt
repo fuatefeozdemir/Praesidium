@@ -15,7 +15,15 @@ FetchContent_MakeAvailable(raylib)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
 
-add_executable(Praesidium ${SOURCES} ${HEADERS})
+add_executable(Praesidium ${SOURCES} ${HEADERS}
+        include/Data/WorldData/ItemData.h
+        include/Data/WorldData/RecipeData.h
+        include/Data/WorldData/BuildingData.h
+        include/Systems/World/BuildingSystem.h
+        src/Systems/World/BuildingSystem.cpp
+        include/Interface/World/BuildingRenderer.h
+        src/Interface/World/BuildingRenderer.cpp
+)
 
 target_link_libraries(Praesidium PRIVATE raylib)
 

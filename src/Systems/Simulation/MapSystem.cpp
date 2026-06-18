@@ -1,5 +1,6 @@
 #include "../../../include/Systems/Simulation/MapSystem.h"
 #include "raylib.h"
+#include "../../../include/Systems/World/BuildingSystem.h"
 
 namespace Systems::Simulation::MapSystem {
 
@@ -42,5 +43,7 @@ namespace Systems::Simulation::MapSystem {
         GenerateOrePatch(map, Data::WorldData::OreType::IRON, 15);   // 15 adet demir bölgesi
         GenerateOrePatch(map, Data::WorldData::OreType::COPPER, 12); // 12 adet bakır bölgesi
         GenerateOrePatch(map, Data::WorldData::OreType::COAL, 10);   // 10 adet kömür bölgesi
+
+        Systems::World::BuildingSystem::CreateCoreBase((map));
     }
 }
