@@ -23,6 +23,9 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         src/Systems/World/BuildingSystem.cpp
         include/Interface/World/BuildingRenderer.h
         src/Interface/World/BuildingRenderer.cpp
+        include/Data/EntityData/ActionData.h
+        include/Systems/Simulation/InteractionSystem.h
+        src/Systems/Simulation/InteractionSystem.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)

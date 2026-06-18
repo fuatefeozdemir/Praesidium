@@ -44,7 +44,7 @@ int main() {
                 break;
             case AppState::ACTIVE_SIMULATION:
 
-                Systems::Simulation::PlayerSystem::Update(player);
+                Systems::Simulation::PlayerSystem::Update(player, worldMap);
                 Engine::Core::CameraManager::Update(player.position);
 
                 if (IsKeyPressed(KEY_ESCAPE)) currentState = AppState::PAUSED;
