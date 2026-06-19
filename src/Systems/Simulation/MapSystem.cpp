@@ -35,7 +35,7 @@ namespace Systems::Simulation::MapSystem {
         for (int i = 0; i < width * height; i++) {
             map.tiles[i].floor = Data::WorldData::FloorType::STONE;
             map.tiles[i].ore = Data::WorldData::OreType::NONE;
-            map.tiles[i].buildingID = 0;
+            map.tiles[i].buildingID = -1;
             map.tiles[i].isPassable = true;
         }
 
