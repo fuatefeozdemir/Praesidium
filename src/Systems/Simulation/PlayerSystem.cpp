@@ -34,20 +34,41 @@ namespace Systems::Simulation::PlayerSystem {
         requestedAction.gridX = targetGridX;
         requestedAction.gridY = targetGridY;
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            requestedAction.type = Data::EntityData::ActionType::BUILD;
-            requestedAction.buildType = Data::WorldData::BuildingType::CONVEYOR;
-        } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-            requestedAction.type = Data::EntityData::ActionType::MINE_ORE;
-        } else if (IsKeyPressed(KEY_E)) {
+        // UI yapılana kadar test amaçlı: T tuşu ile inşa modunu aç/kapat
+        static Data::WorldData::BuildingType selectedBuilding = Data::WorldData::BuildingType::NONE;
+        if (IsKeyPressed(KEY_T)) {
+            if (selectedBuilding == Data::WorldData::BuildingType::NONE)
+                selectedBuilding = Data::WorldData::BuildingType::CONVEYOR;
+            else
+                selectedBuilding = Data::WorldData::BuildingType::NONE;
+        }
+
+        // SOL TIK BASILI TUTULDUĞUNDA (IsMouseButtonDown)
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+            if (selectedBuilding == Data::WorldData::BuildingType::NONE) {
+                // Seçili bina yoksa maden kaz
+                requestedAction.type = Data::EntityData::ActionType::MINE_ORE;
+            } else {
+                // Seçili bina varsa inşa et
+                requestedAction.type = Data::EntityData::ActionType::BUILD;
+                requestedAction.buildType = selectedBuilding;
+            }
+        }
+        // SAĞ TIK BASILI TUTULDUĞUNDA (Yıkım)
+        else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+            requestedAction.type = Data::EntityData::ActionType::DEMOLISH;
+        }
+        // E TUŞUNA BASILDIĞINDA (Tek tık - IsKeyPressed)
+        else if (IsKeyPressed(KEY_E)) {
             requestedAction.type = Data::EntityData::ActionType::TRANSFER_BASE;
             requestedAction.gridX = (int)(player.position.x / map.tileSize);
             requestedAction.gridY = (int)(player.position.y / map.tileSize);
         }
 
-        // İstek varsa sunucu fonksiyonuna gönder
         if (requestedAction.type != Data::EntityData::ActionType::NONE) {
-            Systems::Simulation::InteractionSystem::ExecuteActionOnServer(player, map, requestedAction);
+            Systems::Simulation::InteractionSystem::ExecuteActionOnServer(player, map, requestedAction, dt);
+        } else {
+            player.actionTimer = 0.0f;
         }
     }
 }

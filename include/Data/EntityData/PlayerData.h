@@ -30,8 +30,13 @@ namespace Data::EntityData {
         float health;
         float maxHealth;
 
-        // Envanter (Base'e gidildiğinde buradaki veriler sıfırlanıp/azaltılıp base'e eklenecek)
+        // Envanter
         int maxSlots;
         std::vector<InventorySlot> inventory;
+
+        // Etkileşim süresi takibi için
+        float actionTimer = 0.0f;
+        int lastTargetX = -1;
+        int lastTargetY = -1;
     };
 }

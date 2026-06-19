@@ -47,8 +47,14 @@ namespace Data::WorldData {
         int health;
         int maxHealth;
 
-        // Genel Envanter (Özellikle CORE_BASE için devasa depo)
+        // Üs Envanteri (Sadece CORE_BASE kullanacak)
         std::map<ItemType, int> globalInventory;
+
+        bool isBuilt = false;         // Bina tamamlandı mı? (False ise şantiyedir)
+        float buildProgress = 0.0f;   // İnşaat ilerlemesi (Saniye bazlı)
+        float maxBuildTime = 2.0f;    // Binanın tamamlanması için gereken toplam süre
+        std::map<ItemType, int> remainingCost; // Kalan inşaat maliyeti
+        float timeSinceLastDeduction = 0.0f;   // Kademeli düşüş sayacı
 
         // BİLEŞENLER (Sadece ilgili bina türlerinde dolu olacak)
         std::optional<FactoryComponent> factoryData;

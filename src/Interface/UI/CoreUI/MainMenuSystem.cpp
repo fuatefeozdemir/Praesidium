@@ -77,7 +77,7 @@ namespace Interface::UI::CoreUI::MainMenuSystem {
             Color currentText = isHovered ? TEXT_HOVER : TEXT_NORMAL;
 
             float textFontSize = 28;
-            float spacing = 2; // Modern font için harf aralığı düşürüldü
+            float spacing = 2;
             Vector2 textDim = MeasureTextEx(font, text, textFontSize, spacing);
             Vector2 textPos = { bounds.x + (bounds.width - textDim.x) / 2.0f, bounds.y + (bounds.height - textDim.y) / 2.0f };
 
