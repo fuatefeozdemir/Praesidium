@@ -26,6 +26,7 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Data/EntityData/ActionData.h
         include/Systems/Simulation/InteractionSystem.h
         src/Systems/Simulation/InteractionSystem.cpp
+        include/Interface/World/FloatingText.h
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)
