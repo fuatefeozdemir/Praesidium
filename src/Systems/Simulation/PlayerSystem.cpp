@@ -1,5 +1,5 @@
 #include "../../../include/Systems/Simulation/PlayerSystem.h"
-#include "../../../include/Engine/Core/CameraManager.h"
+#include "../../../include/Engine/Core/Camera.h"
 #include "../../../include/Data/EntityData/ActionData.h"
 #include "../../../include/Data/WorldData/MapData.h"
 #include "../../../include/Systems/Simulation/InteractionSystem.h"

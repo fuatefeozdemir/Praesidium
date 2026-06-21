@@ -1,8 +1,8 @@
-#include "../../../include/Systems/Simulation/MapSystem.h"
+#include "../../../include/Systems/World/MapSystem.h"
 #include "raylib.h"
 #include "../../../include/Systems/World/BuildingSystem.h"
 
-namespace Systems::Simulation::MapSystem {
+namespace Systems::World::MapSystem {
 
     // Yardımcı Fonksiyon: Belirli bir bölgeye dairesel maden öbeği yerleştirir
     void GenerateOrePatch(Data::WorldData::Map& map, Data::WorldData::OreType type, int count) {

@@ -1,4 +1,4 @@
-#include "../../../include/Engine/Core/WindowManager.h"
+#include "../../../include/Engine/Core/Window.h"
 #include "../../../include/Data/CoreData/Configuration.h"
 #include "raylib.h"
 

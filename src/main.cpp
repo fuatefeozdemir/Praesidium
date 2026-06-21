@@ -1,14 +1,15 @@
 #include "raylib.h"
 #include "../include/Data/CoreData/AppState.h"
-#include "../include/Engine/Core/WindowManager.h"
-#include "../include/Engine/Core/CameraManager.h"
-#include "../include/Interface/UI/CoreUI/MainMenuSystem.h"
+#include "../include/Engine/Core/Window.h"
+#include "../include/Engine/Core/Camera.h"
+#include "../include/Interface/UI/CoreUI/MainMenuRenderer.h"
 #include "../include/Data/EntityData/PlayerData.h"
 #include "../include/Systems/Simulation/PlayerSystem.h"
-#include "../include/Systems/Simulation/MapSystem.h"
+#include "../include/Systems/World/MapSystem.h"
 #include "../include/Data/WorldData/MapData.h"
 #include "../include/Interface/World/BuildingRenderer.h"
 #include "../include/Interface/World/MapRenderer.h"
+#include "../include/Systems/World/BuildingSystem.h"
 
 int main() {
     WindowManager::Initialize();
@@ -31,7 +32,7 @@ int main() {
     };
 
     Data::WorldData::Map worldMap;
-    Systems::Simulation::MapSystem::Initialize(worldMap, 100, 100, 64);
+    Systems::World::MapSystem::Initialize(worldMap, 100, 100, 64);
 
     while (!WindowShouldClose() && currentState != AppState::EXIT_REQUESTED) {
 

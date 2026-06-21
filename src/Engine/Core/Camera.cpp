@@ -1,4 +1,4 @@
-#include "../../../include/Engine/Core/CameraManager.h"
+#include "../../../include/Engine/Core/Camera.h"
 #include "raymath.h"
 
 namespace {
