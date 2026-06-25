@@ -5,7 +5,7 @@ namespace {
     Camera2D camera = { 0 };
 }
 
-namespace Engine::Core::CameraManager {
+namespace Engine::Core::Camera {
 
     void Initialize() {
         camera.target = { 0.0f, 0.0f };

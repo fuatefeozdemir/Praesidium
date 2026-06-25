@@ -25,7 +25,7 @@ namespace Systems::Simulation::PlayerSystem {
         }
 
         // 2. Etkileşim İstekleri (Client)
-        Vector2 worldMouse = Engine::Core::CameraManager::GetWorldMousePosition();
+        Vector2 worldMouse = Engine::Core::Camera::GetWorldMousePosition();
         int targetGridX = (int)(worldMouse.x / map.tileSize);
         int targetGridY = (int)(worldMouse.y / map.tileSize);
 

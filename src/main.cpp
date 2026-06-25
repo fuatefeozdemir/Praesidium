@@ -14,8 +14,8 @@
 #include "../include/Interface/UI/CoreUI/BuildingMenuRenderer.h"
 
 int main() {
-    WindowManager::Initialize();
-    Engine::Core::CameraManager::Initialize();
+    Engine::Core::Window::Initialize();
+    Engine::Core::Camera::Initialize();
     Interface::UI::CoreUI::MainMenuSystem::Initialize();
 
     AppState currentState = AppState::MAIN_MENU;
@@ -51,7 +51,7 @@ int main() {
             case AppState::ACTIVE_SIMULATION:
 
                 Systems::Simulation::PlayerSystem::Update(player, worldMap, &buildingMenuState);
-                Engine::Core::CameraManager::Update(player.position);
+                Engine::Core::Camera::Update(player.position);
 
                 if (IsKeyPressed(KEY_ESCAPE)) currentState = AppState::PAUSED;
                 break;
@@ -73,7 +73,7 @@ int main() {
             case AppState::ACTIVE_SIMULATION: {
                 ClearBackground(Color{ 20, 20, 20, 255 });
 
-                Engine::Core::CameraManager::BeginWorldDrawing();
+                Engine::Core::Camera::BeginWorldDrawing();
 
                 // 1. Haritayı Çiz
                 Interface::World::MapRenderer::Draw(worldMap);
@@ -85,10 +85,10 @@ int main() {
                 DrawCircleV(player.position, player.collisionRadius, BLUE);
 
                 // 4. Farenin dünyadaki konumunu çiz
-                Vector2 worldMouse = Engine::Core::CameraManager::GetWorldMousePosition();
+                Vector2 worldMouse = Engine::Core::Camera::GetWorldMousePosition();
                 DrawCircleV(worldMouse, 5.0f, RED);
 
-                Engine::Core::CameraManager::EndWorldDrawing();
+                Engine::Core::Camera::EndWorldDrawing();
 
                 // 5. Arayüzü Çiz
                 Interface::UI::CoreUI::BuildingMenuRenderer::Draw(&buildingMenuState);
@@ -107,6 +107,6 @@ int main() {
     }
 
     Interface::UI::CoreUI::MainMenuSystem::Close();
-    WindowManager::Close();
+    Engine::Core::Window::Close();
     return 0;
 }

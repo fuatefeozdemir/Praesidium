@@ -1,12 +1,11 @@
 #include "../../../include/Engine/Core/Window.h"
-#include "../../../include/Data/CoreData/Configuration.h"
 #include "raylib.h"
 
-namespace WindowManager {
+namespace Engine::Core::Window {
     void Initialize() {
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-        InitWindow(Config::DEFAULT_WINDOW_WIDTH, Config::DEFAULT_WINDOW_HEIGHT, Config::WINDOW_TITLE);
-        SetTargetFPS(Config::TARGET_FPS);
+        InitWindow(STARTUP_WIDTH, STARTUP_HEIGHT, WINDOW_TITLE);
+        SetTargetFPS(TARGET_FPS);
         SetExitKey(0);
     }
 
