@@ -3,11 +3,12 @@
 #include "../../../include/Data/EntityData/ActionData.h"
 #include "../../../include/Data/WorldData/MapData.h"
 #include "../../../include/Systems/Simulation/InteractionSystem.h"
+#include "../../../include/Systems/UI/BuildingMenuSystem.h"
 #include "raylib.h"
 
 // --- CLIENT-SIDE MANTIĞI ---
 namespace Systems::Simulation::PlayerSystem {
-    void Update(Data::EntityData::Player& player, Data::WorldData::Map& map) {
+    void Update(Data::EntityData::Player& player, Data::WorldData::Map& map, Data::UIData::BuildingMenuState* uiState) {
         float dt = GetFrameTime();
         bool isMoving = false;
 
@@ -34,28 +35,25 @@ namespace Systems::Simulation::PlayerSystem {
         requestedAction.gridX = targetGridX;
         requestedAction.gridY = targetGridY;
 
-        // UI yapılana kadar test amaçlı: T tuşu ile inşa modunu aç/kapat
-        static Data::WorldData::BuildingType selectedBuilding = Data::WorldData::BuildingType::NONE;
-        if (IsKeyPressed(KEY_T)) {
-            if (selectedBuilding == Data::WorldData::BuildingType::NONE)
-                selectedBuilding = Data::WorldData::BuildingType::CONVEYOR;
-            else
-                selectedBuilding = Data::WorldData::BuildingType::NONE;
+        // EĞER FARE MENÜ ÜZERİNDEYSE VEYA MENÜ İKONUNA TIKLANDIYSA (Tıklama Tüketimi)
+        if (Systems::UI::BuildingMenuSystem::Update(uiState)) {
+            player.actionTimer = 0.0f; // Varsa mevcut eylemi kes
+            return; // Harita etkileşimine izin verme
         }
 
         // SOL TIK BASILI TUTULDUĞUNDA (IsMouseButtonDown)
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-            if (selectedBuilding == Data::WorldData::BuildingType::NONE) {
+            if (uiState->selectedBuilding == Data::WorldData::BuildingType::NONE) {
                 // Seçili bina yoksa maden kaz
                 requestedAction.type = Data::EntityData::ActionType::MINE_ORE;
             } else {
                 // Seçili bina varsa inşa et
                 requestedAction.type = Data::EntityData::ActionType::BUILD;
-                requestedAction.buildType = selectedBuilding;
+                requestedAction.buildType = uiState->selectedBuilding;
             }
         }
-        // SAĞ TIK BASILI TUTULDUĞUNDA (Yıkım)
-        else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+        // SAĞ TIK BASILI TUTULDUĞUNDA (Yıkım - Sadece inşa modu kapalıyken)
+        else if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && uiState->selectedBuilding == Data::WorldData::BuildingType::NONE) {
             requestedAction.type = Data::EntityData::ActionType::DEMOLISH;
         }
         // E TUŞUNA BASILDIĞINDA (Tek tık - IsKeyPressed)

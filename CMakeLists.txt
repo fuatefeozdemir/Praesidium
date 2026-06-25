@@ -29,6 +29,11 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Interface/World/FloatingText.h
         include/Systems/World/MapSystem.h
         src/Systems/World/MapSystem.cpp
+        include/Data/UIData/BuildingMenuData.h
+        include/Systems/UI/BuildingMenuSystem.h
+        src/Systems/UI/BuildingMenuSystem.cpp
+        include/Interface/UI/CoreUI/BuildingMenuRenderer.h
+        src/Interface/UI/CoreUI/BuildingMenuRenderer.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)

@@ -10,6 +10,8 @@
 #include "../include/Interface/World/BuildingRenderer.h"
 #include "../include/Interface/World/MapRenderer.h"
 #include "../include/Systems/World/BuildingSystem.h"
+#include "../include/Data/UIData/BuildingMenuData.h"
+#include "../include/Interface/UI/CoreUI/BuildingMenuRenderer.h"
 
 int main() {
     WindowManager::Initialize();
@@ -34,6 +36,9 @@ int main() {
     Data::WorldData::Map worldMap;
     Systems::World::MapSystem::Initialize(worldMap, 100, 100, 64);
 
+    // --- BİNA MENÜSÜ VERİSİ ---
+    Data::UIData::BuildingMenuState buildingMenuState;
+
     while (!WindowShouldClose() && currentState != AppState::EXIT_REQUESTED) {
 
         if (IsKeyPressed(KEY_F11)) ToggleFullscreen();
@@ -45,7 +50,7 @@ int main() {
                 break;
             case AppState::ACTIVE_SIMULATION:
 
-                Systems::Simulation::PlayerSystem::Update(player, worldMap);
+                Systems::Simulation::PlayerSystem::Update(player, worldMap, &buildingMenuState);
                 Engine::Core::CameraManager::Update(player.position);
 
                 if (IsKeyPressed(KEY_ESCAPE)) currentState = AppState::PAUSED;
@@ -84,6 +89,10 @@ int main() {
                 DrawCircleV(worldMouse, 5.0f, RED);
 
                 Engine::Core::CameraManager::EndWorldDrawing();
+
+                // 5. Arayüzü Çiz
+                Interface::UI::CoreUI::BuildingMenuRenderer::Draw(&buildingMenuState);
+
                 break;
             }
             case AppState::PAUSED:
