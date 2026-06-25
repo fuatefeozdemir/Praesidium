@@ -1,6 +1,6 @@
-#include "../../../include/Systems/UI/BuildingMenuSystem.h"
+#include "../../include/Systems/BuildingMenuSystem.h"
 
-namespace Systems::UI::BuildingMenuSystem {
+namespace Systems::BuildingMenuSystem {
 
     void LoadCategoryItems(Data::UIData::BuildingMenuState* state) {
         state->currentCategoryItems.clear();

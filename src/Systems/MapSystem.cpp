@@ -1,8 +1,8 @@
-#include "../../../include/Systems/World/MapSystem.h"
-#include "raylib.h"
-#include "../../../include/Systems/World/BuildingSystem.h"
+#include "../../include/Systems/MapSystem.h"
+#include "../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
+#include "../../include/Systems/BuildingSystem.h"
 
-namespace Systems::World::MapSystem {
+namespace Systems::MapSystem {
 
     // Yardımcı Fonksiyon: Belirli bir bölgeye dairesel maden öbeği yerleştirir
     void GenerateOrePatch(Data::WorldData::Map& map, Data::WorldData::OreType type, int count) {
@@ -44,6 +44,6 @@ namespace Systems::World::MapSystem {
         GenerateOrePatch(map, Data::WorldData::OreType::COPPER, 12); // 12 adet bakır bölgesi
         GenerateOrePatch(map, Data::WorldData::OreType::COAL, 10);   // 10 adet kömür bölgesi
 
-        Systems::World::BuildingSystem::CreateCoreBase(map);
+        Systems::BuildingSystem::CreateCoreBase(map);
     }
 }

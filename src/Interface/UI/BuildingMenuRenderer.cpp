@@ -1,7 +1,7 @@
-#include "../../../../include/Interface/UI/CoreUI/BuildingMenuRenderer.h"
-#include "raylib.h"
+#include "../../../include/Interface/UI/BuildingMenuRenderer.h"
+#include "../../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
 
-namespace Interface::UI::CoreUI::BuildingMenuRenderer {
+namespace Interface::UI::BuildingMenuRenderer {
     void Draw(const Data::CoreData::GameContext* context) {
         const auto* menuState = &context->buildingMenu;
         // 1. Sağ Alt Köşe: Menü Açma/Kapama Butonu

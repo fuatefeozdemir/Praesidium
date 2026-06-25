@@ -1,6 +1,6 @@
-#include "../../../include/Systems/World/BuildingSystem.h"
+#include "../../include/Systems/BuildingSystem.h"
 
-namespace Systems::World::BuildingSystem {
+namespace Systems::BuildingSystem {
 
     Data::WorldData::Building* GetBuilding(Data::WorldData::Map& map, int id) {
         for (auto& building : map.activeBuildings) {

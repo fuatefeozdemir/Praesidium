@@ -1,13 +1,13 @@
-#include "../../../include/Systems/Simulation/PlayerSystem.h"
-#include "../../../include/Engine/Core/Camera.h"
-#include "../../../include/Data/EntityData/ActionData.h"
-#include "../../../include/Data/WorldData/MapData.h"
-#include "../../../include/Systems/Simulation/InteractionSystem.h"
-#include "../../../include/Systems/UI/BuildingMenuSystem.h"
-#include "raylib.h"
+#include "../../include/Systems/PlayerSystem.h"
+#include "../../include/Engine/Core/Camera.h"
+#include "../../include/Data/EntityData/ActionData.h"
+#include "../../include/Data/WorldData/MapData.h"
+#include "../../include/Systems/InteractionSystem.h"
+#include "../../include/Systems/BuildingMenuSystem.h"
+#include "../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
 
 // --- CLIENT-SIDE MANTIĞI ---
-namespace Systems::Simulation::PlayerSystem {
+namespace Systems::PlayerSystem {
     void Update(Data::CoreData::GameContext* context) {
         // context içindeki verileri referansa alıyoruz
         auto& player = context->player;
@@ -41,7 +41,7 @@ namespace Systems::Simulation::PlayerSystem {
         requestedAction.gridY = targetGridY;
 
         // EĞER FARE MENÜ ÜZERİNDEYSE VEYA MENÜ İKONUNA TIKLANDIYSA (Tıklama Tüketimi)
-        if (Systems::UI::BuildingMenuSystem::Update(uiState)) {
+        if (Systems::BuildingMenuSystem::Update(uiState)) {
             player.actionTimer = 0.0f; // Varsa mevcut eylemi kes
             return; // Harita etkileşimine izin verme
         }
@@ -69,7 +69,7 @@ namespace Systems::Simulation::PlayerSystem {
         }
 
         if (requestedAction.type != Data::EntityData::ActionType::NONE) {
-            Systems::Simulation::InteractionSystem::ExecuteActionOnServer(player, map, requestedAction, dt);
+            Systems::InteractionSystem::ExecuteActionOnServer(player, map, requestedAction, dt);
         } else {
             player.actionTimer = 0.0f;
         }

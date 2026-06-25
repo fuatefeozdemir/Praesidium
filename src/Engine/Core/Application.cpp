@@ -3,8 +3,8 @@
 #include "raylib.h"
 #include "../../../include/Engine/Core/Window.h"
 #include "../../../include/Engine/Core/Camera.h"
-#include "../../../include/Interface/UI/CoreUI/MainMenuRenderer.h"
-#include "../../../include/Systems/World/MapSystem.h"
+#include "../../../include/Interface/UI/MainMenuRenderer.h"
+#include "../../../include/Systems/MapSystem.h"
 
 namespace Engine::Core::Application {
 
@@ -16,9 +16,9 @@ namespace Engine::Core::Application {
         }
 
         void InitializeGame(Data::CoreData::GameContext& context) {
-            Interface::UI::CoreUI::MainMenuSystem::Initialize();
+            Interface::UI::MainMenuRenderer::Initialize();
             context.player = {"Oyuncu", {0.0f, 0.0f}, 300.0f, 15.0f, Data::EntityData::PlayerActionState::IDLE, 100.0f, 100.0f, 20, {}};
-            Systems::World::MapSystem::Initialize(context.worldMap, 100, 100, 64);
+            Systems::MapSystem::Initialize(context.worldMap, 100, 100, 64);
         }
     }
 
@@ -57,7 +57,7 @@ namespace Engine::Core::Application {
             EndDrawing();
         }
 
-        Interface::UI::CoreUI::MainMenuSystem::Close();
+        Interface::UI::MainMenuRenderer::Close();
         Window::Close();
     }
 }

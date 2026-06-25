@@ -1,7 +1,7 @@
-#include "../../../../include/Interface/UI/CoreUI/MainMenuRenderer.h"
-#include "raylib.h"
+#include "../../../../include/Interface/UI/MainMenuRenderer.h"
+#include "../../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
 
-namespace Interface::UI::CoreUI::MainMenuSystem {
+namespace Interface::UI::MainMenuRenderer {
 
     const int BUTTON_WIDTH = 400;
     const int BUTTON_HEIGHT = 60;

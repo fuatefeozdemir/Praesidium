@@ -19,25 +19,25 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Data/WorldData/ItemData.h
         include/Data/WorldData/RecipeData.h
         include/Data/WorldData/BuildingData.h
-        include/Systems/World/BuildingSystem.h
-        src/Systems/World/BuildingSystem.cpp
+        src/Systems/BuildingSystem.cpp
         include/Interface/World/BuildingRenderer.h
         src/Interface/World/BuildingRenderer.cpp
         include/Data/EntityData/ActionData.h
-        include/Systems/Simulation/InteractionSystem.h
-        src/Systems/Simulation/InteractionSystem.cpp
+        src/Systems/InteractionSystem.cpp
         include/Interface/World/FloatingText.h
-        include/Systems/World/MapSystem.h
-        src/Systems/World/MapSystem.cpp
+        src/Systems/MapSystem.cpp
         include/Data/UIData/BuildingMenuData.h
-        include/Systems/UI/BuildingMenuSystem.h
-        src/Systems/UI/BuildingMenuSystem.cpp
-        include/Interface/UI/CoreUI/BuildingMenuRenderer.h
-        src/Interface/UI/CoreUI/BuildingMenuRenderer.cpp
+        src/Systems/BuildingMenuSystem.cpp
+        src/Interface/UI/BuildingMenuRenderer.cpp
         include/Data/CoreData/GameContext.h
         src/Engine/Core/Application.cpp
         include/Engine/Core/GameStates.h
         src/Engine/Core/GameStates.cpp
+        include/Interface/UI/BuildingMenuRenderer.h
+        include/Interface/UI/MainMenuRenderer.h
+        include/Systems/PlayerSystem.h
+        include/Systems/BuildingMenuSystem.h
+        include/Systems/MapSystem.h
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)

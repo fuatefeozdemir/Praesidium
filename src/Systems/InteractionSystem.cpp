@@ -1,10 +1,10 @@
-#include "../../../include/Systems/Simulation/InteractionSystem.h"
+#include "../../include/Systems/InteractionSystem.h"
 #include <cmath>
 #include <iostream>
 
-#include "../../../include/Systems/World/BuildingSystem.h"
+#include "../../include/Systems/BuildingSystem.h"
 
-namespace Systems::Simulation::InteractionSystem {
+namespace Systems::InteractionSystem {
 
     bool IsWithinInteractionRange(int playerX, int playerY, int targetX, int targetY, int maxRange) {
         return (std::abs(playerX - targetX) <= maxRange) && (std::abs(playerY - targetY) <= maxRange);
@@ -73,11 +73,11 @@ namespace Systems::Simulation::InteractionSystem {
                 int bID = map.tiles[targetIndex].buildingID;
 
                 if (bID == -1) {
-                    Systems::World::BuildingSystem::CreateGhostBuilding(map, action.buildType, action.gridX, action.gridY);
+                    Systems::BuildingSystem::CreateGhostBuilding(map, action.buildType, action.gridX, action.gridY);
                     std::cout << "Santiye yerlestirildi! ID beklemede..." << std::endl;
                 } else {
-                    auto* building = Systems::World::BuildingSystem::GetBuilding(map, bID);
-                    auto* coreBase = Systems::World::BuildingSystem::GetCoreBase(map);
+                    auto* building = Systems::BuildingSystem::GetBuilding(map, bID);
+                    auto* coreBase = Systems::BuildingSystem::GetCoreBase(map);
 
                     if (building != nullptr && !building->isBuilt && coreBase != nullptr) {
 
@@ -126,7 +126,7 @@ namespace Systems::Simulation::InteractionSystem {
                 if (bID == -1) return;
 
                 // Ana üssün silinmesini engelle
-                auto* building = Systems::World::BuildingSystem::GetBuilding(map, bID);
+                auto* building = Systems::BuildingSystem::GetBuilding(map, bID);
                 if (building != nullptr && building->type == Data::WorldData::BuildingType::CORE_BASE) {
                     std::cout << "Ana us yikilamaz!" << std::endl;
                     return;
@@ -139,7 +139,7 @@ namespace Systems::Simulation::InteractionSystem {
             case Data::EntityData::ActionType::TRANSFER_BASE: {
                 int bID = map.tiles[targetIndex].buildingID;
                 if (bID > 0) {
-                    auto* coreBase = Systems::World::BuildingSystem::GetCoreBase(map);
+                    auto* coreBase = Systems::BuildingSystem::GetCoreBase(map);
                     if (coreBase != nullptr && bID == coreBase->id) {
                         int totalTransferred = 0;
 

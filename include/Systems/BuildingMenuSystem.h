@@ -1,7 +1,7 @@
 #pragma once
-#include "../../Data/UIData/BuildingMenuData.h"
+#include "../Data/UIData/BuildingMenuData.h"
 
-namespace Systems::UI::BuildingMenuSystem {
+namespace Systems::BuildingMenuSystem {
     // Menü etkileşimlerini işler. Tıklama UI üzerinde gerçekleşirse true döner.
     bool Update(Data::UIData::BuildingMenuState* state);
     
