@@ -1,5 +1,6 @@
 #pragma once
+#include "../../Data/CoreData/GameContext.h"
 
 namespace Interface::World::BuildingRenderer {
-    void Draw(int tileSize);
+    void Draw(const Data::CoreData::GameContext* context);
 }

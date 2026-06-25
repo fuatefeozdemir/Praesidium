@@ -4,7 +4,9 @@
 
 namespace Interface::World::BuildingRenderer {
 
-    void Draw(int tileSize) {
+    void Draw(const Data::CoreData::GameContext* context) {
+        int tileSize = context->worldMap.tileSize;
+
         for (const auto& building : Systems::World::BuildingSystem::activeBuildings) {
             
             int posX = building.gridX * tileSize;

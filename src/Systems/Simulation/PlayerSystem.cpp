@@ -8,7 +8,12 @@
 
 // --- CLIENT-SIDE MANTIĞI ---
 namespace Systems::Simulation::PlayerSystem {
-    void Update(Data::EntityData::Player& player, Data::WorldData::Map& map, Data::UIData::BuildingMenuState* uiState) {
+    void Update(Data::CoreData::GameContext* context) {
+        // context içindeki verileri referansa alıyoruz
+        auto& player = context->player;
+        auto& map = context->worldMap;
+        auto* uiState = &context->buildingMenu;
+
         float dt = GetFrameTime();
         bool isMoving = false;
 

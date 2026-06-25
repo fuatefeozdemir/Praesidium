@@ -3,7 +3,9 @@
 
 namespace Interface::World::MapRenderer {
 
-    void Draw(const Data::WorldData::Map& map) {
+    void Draw(const Data::CoreData::GameContext* context) {
+        const auto& map = context->worldMap;
+
         for (int y = 0; y < map.height; y++) {
             for (int x = 0; x < map.width; x++) {
                 int index = y * map.width + x;

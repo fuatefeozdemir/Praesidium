@@ -1,16 +1,13 @@
 #include "raylib.h"
-#include "../include/Data/CoreData/AppState.h"
+#include "../include/Data/CoreData/GameContext.h"
 #include "../include/Engine/Core/Window.h"
 #include "../include/Engine/Core/Camera.h"
 #include "../include/Interface/UI/CoreUI/MainMenuRenderer.h"
-#include "../include/Data/EntityData/PlayerData.h"
 #include "../include/Systems/Simulation/PlayerSystem.h"
 #include "../include/Systems/World/MapSystem.h"
-#include "../include/Data/WorldData/MapData.h"
+#include "../include/Systems/World/BuildingSystem.h"
 #include "../include/Interface/World/BuildingRenderer.h"
 #include "../include/Interface/World/MapRenderer.h"
-#include "../include/Systems/World/BuildingSystem.h"
-#include "../include/Data/UIData/BuildingMenuData.h"
 #include "../include/Interface/UI/CoreUI/BuildingMenuRenderer.h"
 
 int main() {
@@ -18,10 +15,11 @@ int main() {
     Engine::Core::Camera::Initialize();
     Interface::UI::CoreUI::MainMenuSystem::Initialize();
 
-    AppState currentState = AppState::MAIN_MENU;
+    // 1. MERKEZİ OYUN BAĞLAMINI (CONTEXT) OLUŞTUR
+    Data::CoreData::GameContext gameContext;
 
-    // Karakterin başlangıç verisini (Data) oluştur
-    Data::EntityData::Player player = {
+    // 2. CONTEXT İÇİNDEKİ VERİLERİ BAŞLAT
+    gameContext.player = {
         "Oyuncu",                         // name
         {0.0f, 0.0f},                     // position (Dünyanın tam merkezi)
         300.0f,                           // speed
@@ -33,31 +31,28 @@ int main() {
         {}                                // inventory (boş)
     };
 
-    Data::WorldData::Map worldMap;
-    Systems::World::MapSystem::Initialize(worldMap, 100, 100, 64);
+    Systems::World::MapSystem::Initialize(gameContext.worldMap, 100, 100, 64);
 
-    // --- BİNA MENÜSÜ VERİSİ ---
-    Data::UIData::BuildingMenuState buildingMenuState;
-
-    while (!WindowShouldClose() && currentState != AppState::EXIT_REQUESTED) {
+    // 3. ANA DÖNGÜ (Artık durum kontrolü gameContext üzerinden yapılıyor)
+    while (!WindowShouldClose() && gameContext.currentState != AppState::EXIT_REQUESTED) {
 
         if (IsKeyPressed(KEY_F11)) ToggleFullscreen();
 
         // --- GÜNCELLEME (LOGIC) ---
-        switch (currentState) {
+        switch (gameContext.currentState) {
             case AppState::MAIN_MENU:
-                Interface::UI::CoreUI::MainMenuSystem::Update(currentState);
+                Interface::UI::CoreUI::MainMenuSystem::Update(gameContext.currentState);
                 break;
             case AppState::ACTIVE_SIMULATION:
+                // SİSTEME SADECE CONTEXT'İN ADRESİNİ GÖNDERİYORUZ
+                Systems::Simulation::PlayerSystem::Update(&gameContext);
+                Engine::Core::Camera::Update(gameContext.player.position);
 
-                Systems::Simulation::PlayerSystem::Update(player, worldMap, &buildingMenuState);
-                Engine::Core::Camera::Update(player.position);
-
-                if (IsKeyPressed(KEY_ESCAPE)) currentState = AppState::PAUSED;
+                if (IsKeyPressed(KEY_ESCAPE)) gameContext.currentState = AppState::PAUSED;
                 break;
             case AppState::PAUSED:
-                if (IsKeyPressed(KEY_ESCAPE)) currentState = AppState::ACTIVE_SIMULATION;
-                if (IsKeyPressed(KEY_Q)) currentState = AppState::MAIN_MENU;
+                if (IsKeyPressed(KEY_ESCAPE)) gameContext.currentState = AppState::ACTIVE_SIMULATION;
+                if (IsKeyPressed(KEY_Q)) gameContext.currentState = AppState::MAIN_MENU;
                 break;
             default: break;
         }
@@ -66,23 +61,23 @@ int main() {
         BeginDrawing();
         ClearBackground(BLACK);
 
-        switch (currentState) {
+        switch (gameContext.currentState) {
             case AppState::MAIN_MENU:
                 Interface::UI::CoreUI::MainMenuSystem::Draw();
-            break;
+                break;
             case AppState::ACTIVE_SIMULATION: {
                 ClearBackground(Color{ 20, 20, 20, 255 });
 
                 Engine::Core::Camera::BeginWorldDrawing();
 
                 // 1. Haritayı Çiz
-                Interface::World::MapRenderer::Draw(worldMap);
+                Interface::World::MapRenderer::Draw(&gameContext);
 
                 // 2. Binaları Çiz
-                Interface::World::BuildingRenderer::Draw(worldMap.tileSize);
+                Interface::World::BuildingRenderer::Draw(&gameContext);
 
                 // 3. Karakteri Çiz
-                DrawCircleV(player.position, player.collisionRadius, BLUE);
+                DrawCircleV(gameContext.player.position, gameContext.player.collisionRadius, BLUE);
 
                 // 4. Farenin dünyadaki konumunu çiz
                 Vector2 worldMouse = Engine::Core::Camera::GetWorldMousePosition();
@@ -91,15 +86,15 @@ int main() {
                 Engine::Core::Camera::EndWorldDrawing();
 
                 // 5. Arayüzü Çiz
-                Interface::UI::CoreUI::BuildingMenuRenderer::Draw(&buildingMenuState);
+                Interface::UI::CoreUI::BuildingMenuRenderer::Draw(&gameContext);
 
                 break;
             }
             case AppState::PAUSED:
                 ClearBackground(DARKGRAY);
-            DrawText("OYUN DURAKLATILDI", 10, 10, 20, RED);
-            DrawText("Devam: ESC | Ana Menu: Q", 10, 40, 20, LIGHTGRAY);
-            break;
+                DrawText("OYUN DURAKLATILDI", 10, 10, 20, RED);
+                DrawText("Devam: ESC | Ana Menu: Q", 10, 40, 20, LIGHTGRAY);
+                break;
             default: break;
         }
 

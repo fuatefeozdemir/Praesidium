@@ -1,6 +1,6 @@
 #pragma once
-#include "../../Data/WorldData/MapData.h"
+#include "../../Data/CoreData/GameContext.h"
 
 namespace Interface::World::MapRenderer {
-    void Draw(const Data::WorldData::Map& map);
+    void Draw(const Data::CoreData::GameContext* context);
 }

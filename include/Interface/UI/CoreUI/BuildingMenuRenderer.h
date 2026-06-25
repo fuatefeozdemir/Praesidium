@@ -1,6 +1,6 @@
 #pragma once
-#include "../../../Data/UIData/BuildingMenuData.h"
+#include "../../../../include/Data/CoreData/GameContext.h"
 
 namespace Interface::UI::CoreUI::BuildingMenuRenderer {
-    void Draw(const Data::UIData::BuildingMenuState* state);
+    void Draw(const Data::CoreData::GameContext* context);
 }

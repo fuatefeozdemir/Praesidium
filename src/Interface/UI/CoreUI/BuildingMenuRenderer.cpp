@@ -1,41 +1,42 @@
 #include "../../../../include/Interface/UI/CoreUI/BuildingMenuRenderer.h"
+#include "raylib.h"
 
 namespace Interface::UI::CoreUI::BuildingMenuRenderer {
-
-    void Draw(const Data::UIData::BuildingMenuState* state) {
+    void Draw(const Data::CoreData::GameContext* context) {
+        const auto* menuState = &context->buildingMenu;
         // 1. Sağ Alt Köşe: Menü Açma/Kapama Butonu
-        Color toggleColor = state->isOpen ? RED : DARKGRAY;
-        DrawRectangleRec(state->toggleButtonBounds, toggleColor);
-        DrawRectangleLinesEx(state->toggleButtonBounds, 2.0f, LIGHTGRAY);
-        DrawText(state->isOpen ? "KAPAT" : "MENU", 
-                 (int)(state->toggleButtonBounds.x + 10), 
-                 (int)(state->toggleButtonBounds.y + 20), 10, WHITE);
+        Color toggleColor = menuState->isOpen ? RED : DARKGRAY;
+        DrawRectangleRec(menuState->toggleButtonBounds, toggleColor);
+        DrawRectangleLinesEx(menuState->toggleButtonBounds, 2.0f, LIGHTGRAY);
+        DrawText(menuState->isOpen ? "KAPAT" : "MENU",
+                 (int)(menuState->toggleButtonBounds.x + 10),
+                 (int)(menuState->toggleButtonBounds.y + 20), 10, WHITE);
 
         // 2. İnşa Modu Aktif Uyarısı
-        if (state->selectedBuilding != Data::WorldData::BuildingType::NONE) {
+        if (menuState->selectedBuilding != Data::WorldData::BuildingType::NONE) {
             DrawText("Insa Modu Aktif! (Iptal: Sag Tik)", GetScreenWidth() / 2 - 150, 20, 20, GREEN);
         }
 
         // Menü kapalıysa gerisini çizme
-        if (!state->isOpen) return;
+        if (!menuState->isOpen) return;
 
         // 3. Ana Panel
-        DrawRectangleRec(state->panelBounds, Fade(DARKGRAY, 0.95f));
-        DrawRectangleLinesEx(state->panelBounds, 2.0f, LIGHTGRAY);
+        DrawRectangleRec(menuState->panelBounds, Fade(DARKGRAY, 0.95f));
+        DrawRectangleLinesEx(menuState->panelBounds, 2.0f, LIGHTGRAY);
 
         // 4. Kategori Sekmesi (Lojistik)
-        Color logColor = (state->activeCategory == Data::UIData::BuildingCategory::LOGISTICS) ? GRAY : DARKBLUE;
-        Rectangle logisticsTab = { state->panelBounds.x + 20, state->panelBounds.y + 10, 80, 30 };
+        Color logColor = (menuState->activeCategory == Data::UIData::BuildingCategory::LOGISTICS) ? GRAY : DARKBLUE;
+        Rectangle logisticsTab = { menuState->panelBounds.x + 20, menuState->panelBounds.y + 10, 80, 30 };
         DrawRectangleRec(logisticsTab, logColor);
         DrawText("Lojistik", (int)(logisticsTab.x + 15), (int)(logisticsTab.y + 10), 10, WHITE);
 
         // 5. Binaların Listelenmesi
-        for (const auto& item : state->currentCategoryItems) {
-            Color btnColor = (state->selectedBuilding == item.type) ? GREEN : GRAY;
-            
+        for (const auto& item : menuState->currentCategoryItems) {
+            Color btnColor = (menuState->selectedBuilding == item.type) ? GREEN : GRAY;
+
             DrawRectangleRec(item.bounds, btnColor);
             DrawRectangleLinesEx(item.bounds, 1.0f, BLACK);
-            
+
             DrawText(item.name.c_str(), (int)(item.bounds.x + 10), (int)(item.bounds.y + 10), 20, WHITE);
         }
     }
