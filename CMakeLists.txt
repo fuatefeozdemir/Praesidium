@@ -35,6 +35,9 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Interface/UI/CoreUI/BuildingMenuRenderer.h
         src/Interface/UI/CoreUI/BuildingMenuRenderer.cpp
         include/Data/CoreData/GameContext.h
+        src/Engine/Core/Application.cpp
+        include/Engine/Core/GameStates.h
+        src/Engine/Core/GameStates.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)
