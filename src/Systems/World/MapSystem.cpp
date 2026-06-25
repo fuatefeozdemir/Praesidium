@@ -44,6 +44,6 @@ namespace Systems::World::MapSystem {
         GenerateOrePatch(map, Data::WorldData::OreType::COPPER, 12); // 12 adet bakır bölgesi
         GenerateOrePatch(map, Data::WorldData::OreType::COAL, 10);   // 10 adet kömür bölgesi
 
-        Systems::World::BuildingSystem::CreateCoreBase((map));
+        Systems::World::BuildingSystem::CreateCoreBase(map);
     }
 }

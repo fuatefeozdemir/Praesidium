@@ -1,19 +1,16 @@
 #include "../../../include/Systems/World/BuildingSystem.h"
 
 namespace Systems::World::BuildingSystem {
-    
-    std::vector<Data::WorldData::Building> activeBuildings;
-    int nextBuildingID = 1;
 
-    Data::WorldData::Building* GetBuilding(int id) {
-        for (auto& building : activeBuildings) {
+    Data::WorldData::Building* GetBuilding(Data::WorldData::Map& map, int id) {
+        for (auto& building : map.activeBuildings) {
             if (building.id == id) return &building;
         }
         return nullptr;
     }
 
-    Data::WorldData::Building* GetCoreBase() {
-        for (auto& building : activeBuildings) {
+    Data::WorldData::Building* GetCoreBase(Data::WorldData::Map& map) {
+        for (auto& building : map.activeBuildings) {
             if (building.type == Data::WorldData::BuildingType::CORE_BASE) return &building;
         }
         return nullptr;
@@ -21,7 +18,7 @@ namespace Systems::World::BuildingSystem {
 
     void CreateGhostBuilding(Data::WorldData::Map& map, Data::WorldData::BuildingType type, int gridX, int gridY) {
         Data::WorldData::Building ghost;
-        ghost.id = nextBuildingID++;
+        ghost.id = map.nextBuildingID++;
         ghost.type = type;
         ghost.isBuilt = false;
         ghost.buildProgress = 0.0f;
@@ -39,7 +36,7 @@ namespace Systems::World::BuildingSystem {
             ghost.remainingCost[Data::WorldData::ItemType::IRON_ORE] = 2;
         }
 
-        activeBuildings.push_back(ghost);
+        map.activeBuildings.push_back(ghost);
         int index = gridY * map.width + gridX;
         map.tiles[index].buildingID = ghost.id;
     }
@@ -49,7 +46,7 @@ namespace Systems::World::BuildingSystem {
         int centerY = map.height / 2;
 
         Data::WorldData::Building coreBase;
-        coreBase.id = nextBuildingID++;
+        coreBase.id = map.nextBuildingID++;
         coreBase.type = Data::WorldData::BuildingType::CORE_BASE;
         coreBase.width = 3;
         coreBase.height = 3;
@@ -58,7 +55,7 @@ namespace Systems::World::BuildingSystem {
         coreBase.maxHealth = 1000;
         coreBase.health = 1000;
 
-        activeBuildings.push_back(coreBase);
+        map.activeBuildings.push_back(coreBase);
 
         for (int y = coreBase.gridY; y < coreBase.gridY + coreBase.height; y++) {
             for (int x = coreBase.gridX; x < coreBase.gridX + coreBase.width; x++) {

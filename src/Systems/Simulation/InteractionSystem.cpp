@@ -76,8 +76,8 @@ namespace Systems::Simulation::InteractionSystem {
                     Systems::World::BuildingSystem::CreateGhostBuilding(map, action.buildType, action.gridX, action.gridY);
                     std::cout << "Santiye yerlestirildi! ID beklemede..." << std::endl;
                 } else {
-                    auto* building = Systems::World::BuildingSystem::GetBuilding(bID);
-                    auto* coreBase = Systems::World::BuildingSystem::GetCoreBase();
+                    auto* building = Systems::World::BuildingSystem::GetBuilding(map, bID);
+                    auto* coreBase = Systems::World::BuildingSystem::GetCoreBase(map);
 
                     if (building != nullptr && !building->isBuilt && coreBase != nullptr) {
 
@@ -126,7 +126,7 @@ namespace Systems::Simulation::InteractionSystem {
                 if (bID == -1) return;
 
                 // Ana üssün silinmesini engelle
-                auto* building = Systems::World::BuildingSystem::GetBuilding(bID);
+                auto* building = Systems::World::BuildingSystem::GetBuilding(map, bID);
                 if (building != nullptr && building->type == Data::WorldData::BuildingType::CORE_BASE) {
                     std::cout << "Ana us yikilamaz!" << std::endl;
                     return;
@@ -139,7 +139,7 @@ namespace Systems::Simulation::InteractionSystem {
             case Data::EntityData::ActionType::TRANSFER_BASE: {
                 int bID = map.tiles[targetIndex].buildingID;
                 if (bID > 0) {
-                    auto* coreBase = Systems::World::BuildingSystem::GetCoreBase();
+                    auto* coreBase = Systems::World::BuildingSystem::GetCoreBase(map);
                     if (coreBase != nullptr && bID == coreBase->id) {
                         int totalTransferred = 0;
 

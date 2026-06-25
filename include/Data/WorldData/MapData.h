@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <cstdint>
+#include "BuildingData.h"
 
 namespace Data::WorldData {
 
@@ -31,5 +32,8 @@ namespace Data::WorldData {
         int height;
         int tileSize;
         std::vector<Tile> tiles;
+
+        std::vector<Data::WorldData::Building> activeBuildings;
+        int nextBuildingID = 1;
     };
 }

@@ -1,5 +1,4 @@
 #include "../../../include/Interface/World/BuildingRenderer.h"
-#include "../../../include/Systems/World/BuildingSystem.h"
 #include "raylib.h"
 
 namespace Interface::World::BuildingRenderer {
@@ -7,7 +6,7 @@ namespace Interface::World::BuildingRenderer {
     void Draw(const Data::CoreData::GameContext* context) {
         int tileSize = context->worldMap.tileSize;
 
-        for (const auto& building : Systems::World::BuildingSystem::activeBuildings) {
+        for (const auto& building : context->worldMap.activeBuildings) {
             
             int posX = building.gridX * tileSize;
             int posY = building.gridY * tileSize;
