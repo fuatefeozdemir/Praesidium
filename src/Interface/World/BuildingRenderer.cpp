@@ -4,19 +4,24 @@
 namespace Interface::World::BuildingRenderer {
 
     void Draw(const Data::CoreData::GameContext* context) {
-        int tileSize = context->worldMap.tileSize;
+        float tileSizeF = static_cast<float>(context->worldMap.tileSize);
 
         for (const auto& building : context->worldMap.activeBuildings) {
-            
-            int posX = building.gridX * tileSize;
-            int posY = building.gridY * tileSize;
-            int renderWidth = building.width * tileSize;
-            int renderHeight = building.height * tileSize;
+
+            // Veri katmanındaki int değerleri çizim anında float'a çevriliyor
+            float posX = static_cast<float>(building.gridX) * tileSizeF;
+            float posY = static_cast<float>(building.gridY) * tileSizeF;
+            float renderWidth = static_cast<float>(building.width) * tileSizeF;
+            float renderHeight = static_cast<float>(building.height) * tileSizeF;
 
             if (building.type == Data::WorldData::BuildingType::CORE_BASE) {
-                DrawRectangle(posX, posY, renderWidth, renderHeight, Fade(SKYBLUE, 0.8f));
-                DrawRectangle(posX + tileSize, posY + tileSize, tileSize, tileSize, DARKBLUE);
-                DrawRectangleLines(posX, posY, renderWidth, renderHeight, BLUE);
+                Rectangle baseRec = { posX, posY, renderWidth, renderHeight };
+                DrawRectangleRec(baseRec, Fade(SKYBLUE, 0.8f));
+
+                Rectangle innerRec = { posX + tileSizeF, posY + tileSizeF, tileSizeF, tileSizeF };
+                DrawRectangleRec(innerRec, DARKBLUE);
+
+                DrawRectangleLinesEx(baseRec, 1.0f, BLUE);
             }
         }
     }

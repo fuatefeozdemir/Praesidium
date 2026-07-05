@@ -13,7 +13,7 @@ namespace Data::WorldData {
     // 1. Üretim Yapan Binalar İçin (Fabrikalar, Fırınlar)
     struct FactoryComponent {
         int activeRecipeID = -1;
-        float currentCraftingProgress = 0.0f;
+        int currentCraftingTicks = 0;
         // Fabrikaların girdileri ve çıktıları ayrı tutulmalı ki bantlar nereye eşya vereceğini bilsin
         std::map<ItemType, int> inputBuffer;
         std::map<ItemType, int> outputBuffer;
@@ -23,15 +23,15 @@ namespace Data::WorldData {
     struct ConveyorComponent {
         int direction; // 0: Kuzey, 1: Doğu, 2: Güney, 3: Batı
         ItemType currentItem = ItemType::NONE;
-        float moveProgress = 0.0f; // Eşyanın bandın üzerindeki ilerleyişi (0.0 - 1.0)
+        int moveProgressTicks = 0;
     };
 
     // 3. Savunma Binaları İçin (Kuleler)
     struct TurretComponent {
-        float range;
+        int range;
         int damage;
-        float fireRateCooldown;
-        float currentCooldown = 0.0f;
+        int fireRateCooldownTicks;
+        int currentCooldownTicks = 0;
         // Eğer mermi kullanıyorsa kendi küçük envanteri
         std::map<ItemType, int> ammoStorage;
     };
@@ -51,10 +51,10 @@ namespace Data::WorldData {
         std::map<ItemType, int> globalInventory;
 
         bool isBuilt = false;         // Bina tamamlandı mı? (False ise şantiyedir)
-        float buildProgress = 0.0f;   // İnşaat ilerlemesi (Saniye bazlı)
-        float maxBuildTime = 2.0f;    // Binanın tamamlanması için gereken toplam süre
+        int buildProgressTicks = 0;
+        int maxBuildTicks = 120;      // 2 saniye * 60 tick = 120 tick
         std::map<ItemType, int> remainingCost; // Kalan inşaat maliyeti
-        float timeSinceLastDeduction = 0.0f;   // Kademeli düşüş sayacı
+        int ticksSinceLastDeduction = 0;
 
         // BİLEŞENLER (Sadece ilgili bina türlerinde dolu olacak)
         std::optional<FactoryComponent> factoryData;

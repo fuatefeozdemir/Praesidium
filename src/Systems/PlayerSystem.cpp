@@ -14,14 +14,14 @@ namespace Systems::PlayerSystem {
         auto& map = context->worldMap;
         auto* uiState = &context->buildingMenu;
 
-        float dt = GetFrameTime();
         bool isMoving = false;
+        int moveStep = player.speed / 60;
 
         // 1. Hareket Kontrolü
-        if (IsKeyDown(KEY_W)) { player.position.y -= player.speed * dt; isMoving = true; }
-        if (IsKeyDown(KEY_S)) { player.position.y += player.speed * dt; isMoving = true; }
-        if (IsKeyDown(KEY_A)) { player.position.x -= player.speed * dt; isMoving = true; }
-        if (IsKeyDown(KEY_D)) { player.position.x += player.speed * dt; isMoving = true; }
+        if (IsKeyDown(KEY_W)) { player.position.y -= moveStep; isMoving = true; }
+        if (IsKeyDown(KEY_S)) { player.position.y += moveStep; isMoving = true; }
+        if (IsKeyDown(KEY_A)) { player.position.x -= moveStep; isMoving = true; }
+        if (IsKeyDown(KEY_D)) { player.position.x += moveStep; isMoving = true; }
 
         if (isMoving) {
             player.state = Data::EntityData::PlayerActionState::MOVING;
@@ -42,7 +42,7 @@ namespace Systems::PlayerSystem {
 
         // EĞER FARE MENÜ ÜZERİNDEYSE VEYA MENÜ İKONUNA TIKLANDIYSA (Tıklama Tüketimi)
         if (Systems::BuildingMenuSystem::Update(uiState)) {
-            player.actionTimer = 0.0f; // Varsa mevcut eylemi kes
+            player.actionTimer = 0; // Varsa mevcut eylemi kes
             return; // Harita etkileşimine izin verme
         }
 
@@ -64,14 +64,14 @@ namespace Systems::PlayerSystem {
         // E TUŞUNA BASILDIĞINDA (Tek tık - IsKeyPressed)
         else if (IsKeyPressed(KEY_E)) {
             requestedAction.type = Data::EntityData::ActionType::TRANSFER_BASE;
-            requestedAction.gridX = (int)(player.position.x / map.tileSize);
-            requestedAction.gridY = (int)(player.position.y / map.tileSize);
+            requestedAction.gridX = player.position.x / map.tileSize;
+            requestedAction.gridY = player.position.y / map.tileSize;
         }
 
         if (requestedAction.type != Data::EntityData::ActionType::NONE) {
-            Systems::InteractionSystem::ExecuteActionOnServer(player, map, requestedAction, dt);
+            Systems::InteractionSystem::ExecuteActionOnServer(player, map, requestedAction, 1.0f / 60.0f);
         } else {
-            player.actionTimer = 0.0f;
+            player.actionTimer = 0;
         }
     }
 }

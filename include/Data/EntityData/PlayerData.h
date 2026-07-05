@@ -5,6 +5,11 @@
 
 namespace Data::EntityData {
 
+    struct Vector2Int {
+        int x;
+        int y;
+    };
+
     struct InventorySlot {
         int itemID;
         int count;
@@ -21,21 +26,21 @@ namespace Data::EntityData {
         std::string name;
 
         // Fizik ve Hareket
-        Vector2 position;
-        float speed;
-        float collisionRadius;
+        Vector2Int position;
+        int speed;
+        int collisionRadius;
 
         // Durum ve İstatistikler
         PlayerActionState state;
-        float health;
-        float maxHealth;
+        int health;
+        int maxHealth;
 
         // Envanter
         int maxSlots;
         std::vector<InventorySlot> inventory;
 
         // Etkileşim süresi takibi için
-        float actionTimer = 0.0f;
+        int actionTimer = 0;
         int lastTargetX = -1;
         int lastTargetY = -1;
     };

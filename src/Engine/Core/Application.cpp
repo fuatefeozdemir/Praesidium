@@ -17,7 +17,7 @@ namespace Engine::Core::Application {
 
         void InitializeGame(Data::CoreData::GameContext& context) {
             Interface::UI::MainMenuRenderer::Initialize();
-            context.player = {"Oyuncu", {0.0f, 0.0f}, 300.0f, 15.0f, Data::EntityData::PlayerActionState::IDLE, 100.0f, 100.0f, 20, {}};
+            context.player = {"Oyuncu", {0, 0}, 300000, 15000, Data::EntityData::PlayerActionState::IDLE, 100, 100, 20, {}};
             Systems::MapSystem::Initialize(context.worldMap, 100, 100, 64);
         }
     }
@@ -36,6 +36,9 @@ namespace Engine::Core::Application {
         // Aktif durum işaretçisi (Pointer)
         IGameState* activeState = &mainMenu;
 
+        const double TICK_RATE = 1.0 / 60.0;
+        double accumulator = 0.0;
+
         // --- ANA OYUN DÖNGÜSÜ ---
         while (!WindowShouldClose() && gameContext.currentState != AppState::EXIT_REQUESTED) {
             if (IsKeyPressed(KEY_F11)) ToggleFullscreen();
@@ -48,8 +51,13 @@ namespace Engine::Core::Application {
                 default: break;
             }
 
-            // GÜNCELLEME (Aktif sınıf kendi Update fonksiyonunu çalıştırır)
-            activeState->Update(&gameContext);
+            accumulator += GetFrameTime();
+
+            while (accumulator >= TICK_RATE) {
+                // GÜNCELLEME (Aktif sınıf kendi Update fonksiyonunu çalıştırır)
+                activeState->Update(&gameContext);
+                accumulator -= TICK_RATE;
+            }
 
             // ÇİZİM (Aktif sınıf kendi Draw fonksiyonunu çalıştırır)
             BeginDrawing();

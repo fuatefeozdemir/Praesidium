@@ -3,8 +3,7 @@
 
 namespace Engine::Core::Camera {
     void Initialize();
-    void Update(Vector2 targetPosition);
-    void BeginWorldDrawing();
+    void Update(int targetX, int targetY);    void BeginWorldDrawing();
     void EndWorldDrawing();
     Vector2 GetWorldMousePosition();
 }

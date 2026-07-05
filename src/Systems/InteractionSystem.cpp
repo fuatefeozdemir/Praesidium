@@ -10,16 +10,16 @@ namespace Systems::InteractionSystem {
         return (std::abs(playerX - targetX) <= maxRange) && (std::abs(playerY - targetY) <= maxRange);
     }
 
-    void ExecuteActionOnServer(Data::EntityData::Player& player, Data::WorldData::Map& map, const Data::EntityData::PlayerAction& action, float dt) {
+    void ExecuteActionOnServer(Data::EntityData::Player& player, Data::WorldData::Map& map, const Data::EntityData::PlayerAction& action) {
         if (action.gridX < 0 || action.gridX >= map.width || action.gridY < 0 || action.gridY >= map.height) return;
 
-        int playerGridX = (int)(player.position.x / map.tileSize);
-        int playerGridY = (int)(player.position.y / map.tileSize);
+        int playerGridX = player.position.x / map.tileSize;
+        int playerGridY = player.position.y / map.tileSize;
         int targetIndex = action.gridY * map.width + action.gridX;
 
         // Oyuncu hedefini değiştirirse sayacı sıfırla
         if (player.lastTargetX != action.gridX || player.lastTargetY != action.gridY) {
-            player.actionTimer = 0.0f;
+            player.actionTimer = 0;
             player.lastTargetX = action.gridX;
             player.lastTargetY = action.gridY;
         }
@@ -30,8 +30,8 @@ namespace Systems::InteractionSystem {
 
                 auto targetOre = map.tiles[targetIndex].ore;
                 if (targetOre != Data::WorldData::OreType::NONE) {
-                    player.actionTimer += dt;
-                    if (player.actionTimer >= 1.0f) {
+                    player.actionTimer++;
+                    if (player.actionTimer >= 60) { // 60 tick = 1 saniye
 
                         Data::WorldData::ItemType minedItem = Data::WorldData::ItemType::NONE;
                         if (targetOre == Data::WorldData::OreType::IRON) minedItem = Data::WorldData::ItemType::IRON_ORE;
@@ -62,7 +62,7 @@ namespace Systems::InteractionSystem {
                                 }
                             }
                         }
-                        player.actionTimer = 0.0f;
+                        player.actionTimer = 0;
                     }
                 }
                 break;
@@ -81,18 +81,18 @@ namespace Systems::InteractionSystem {
 
                     if (building != nullptr && !building->isBuilt && coreBase != nullptr) {
 
-                        building->timeSinceLastDeduction += dt;
+                        building->timeSinceLastDeduction++;
                         bool canProgress = true;
 
                         // Her 1 saniyede bir (veya belirlediğin sürede) eksik malzemelerden 1 adet çekmeyi dene
-                        if (building->timeSinceLastDeduction >= 1.0f) {
+                        if (building->timeSinceLastDeduction >= 60) { // 60 tick = 1 saniye
                             for (auto& pair : building->remainingCost) {
                                 if (pair.second > 0) { // Eğer bu eşyadan hala gerekiyorsa
                                     // Üssün envanterinde var mı?
                                     if (coreBase->globalInventory[pair.first] > 0) {
                                         coreBase->globalInventory[pair.first]--; // Üsten düş
                                         pair.second--;                           // Şantiyedeki ihtiyacı azalt
-                                        building->timeSinceLastDeduction = 0.0f; // Sayacı sıfırla
+                                        building->timeSinceLastDeduction = 0; // Sayacı sıfırla
                                         std::cout << "Usten 1 adet malzeme cekildi!" << std::endl;
                                         break; // Bu tick'te sadece 1 eşya çek, sonrakini bekle
                                     } else {
@@ -107,8 +107,9 @@ namespace Systems::InteractionSystem {
 
                         // Eğer malzeme beklemiyorsak veya az önce başarılı çektiysek ilerlemeyi artır
                         if (canProgress) {
-                            building->buildProgress += dt;
+                            building->buildProgress++;
 
+                            // maxBuildTime değerinin BuildingData.h içinde tick (int) cinsinden tutulduğu varsayılmıştır
                             if (building->buildProgress >= building->maxBuildTime) {
                                 building->isBuilt = true;
                                 building->buildProgress = building->maxBuildTime;
