@@ -38,6 +38,7 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Systems/PlayerSystem.h
         include/Systems/BuildingMenuSystem.h
         include/Systems/MapSystem.h
+        include/Data/CoreData/Vector2Int.h
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)
