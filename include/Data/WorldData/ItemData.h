@@ -8,7 +8,9 @@ namespace Data::WorldData {
         COAL, 
         IRON_INGOT, 
         COPPER_INGOT,
-        WATER
+        WATER,
+
+        MAX_ITEM_COUNT // sonda olmalı
     };
 
     struct ItemAmount {

@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <map>
 #include <optional>
 #include "ItemData.h"
 
@@ -15,8 +14,8 @@ namespace Data::WorldData {
         int activeRecipeID = -1;
         int currentCraftingTicks = 0;
         // Fabrikaların girdileri ve çıktıları ayrı tutulmalı ki bantlar nereye eşya vereceğini bilsin
-        std::map<ItemType, int> inputBuffer;
-        std::map<ItemType, int> outputBuffer;
+        int inputBuffer[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
+        int outputBuffer[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
     };
 
     // 2. Taşıma Bantları İçin
@@ -33,7 +32,7 @@ namespace Data::WorldData {
         int fireRateCooldownTicks;
         int currentCooldownTicks = 0;
         // Eğer mermi kullanıyorsa kendi küçük envanteri
-        std::map<ItemType, int> ammoStorage;
+        int ammoStorage[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
     };
 
     // ANA BİNA YAPISI
@@ -48,12 +47,12 @@ namespace Data::WorldData {
         int maxHealth;
 
         // Üs Envanteri (Sadece CORE_BASE kullanacak)
-        std::map<ItemType, int> globalInventory;
+        int globalInventory[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
 
         bool isBuilt = false;         // Bina tamamlandı mı? (False ise şantiyedir)
         int buildProgressTicks = 0;
         int maxBuildTicks = 120;      // 2 saniye * 60 tick = 120 tick
-        std::map<ItemType, int> remainingCost; // Kalan inşaat maliyeti
+        int remainingCost[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0}; // Kalan inşaat maliyeti
         int ticksSinceLastDeduction = 0;
 
         // BİLEŞENLER (Sadece ilgili bina türlerinde dolu olacak)

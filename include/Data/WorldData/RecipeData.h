@@ -7,6 +7,6 @@ namespace Data::WorldData {
         int id;
         std::vector<ItemAmount> inputs;
         std::vector<ItemAmount> outputs;
-        float processingTime;
+        int processingTime;
     };
 }
