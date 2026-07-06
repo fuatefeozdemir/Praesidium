@@ -32,6 +32,44 @@ namespace Data::WorldData {
     };
 
     // ==========================================
+    // STATİK BİNA TANIMLARI (
+    // ==========================================
+    struct BuildingDefinition {
+        BuildingType type;
+        CoreData::Vector2Int defaultSize;
+        int baseHealth;
+        int maxTier;
+
+        // Component İhtiyaç Flags
+        bool hasHealth;
+        bool hasInventory;
+        bool hasProduction;
+        bool hasExtractor;
+        bool hasPowerProducer;
+        bool hasPowerConsumer;
+        bool hasConveyor;
+        bool hasSplitter;
+    };
+
+    // ilerde json olarak değiştirilebilir
+    inline constexpr BuildingDefinition BuildingRegistry[] = {
+        // Type,                       Size,   HP,   Tier, Health, Inv,   Prod,  Ext,   PwrProd, PwrCons, Conv,  Split
+        { BuildingType::WALL,          {1, 1}, 500,  1,    true,   false, false, false, false,   false,   false, false },
+        { BuildingType::MINER,         {2, 2}, 200,  1,    true,   true,  false, true,  false,   true,    false, false },
+        { BuildingType::FURNACE,       {2, 2}, 300,  1,    true,   true,  true,  false, false,   true,    false, false },
+        { BuildingType::CONVEYOR_BELT, {1, 1}, 50,   1,    true,   false, false, false, false,   false,   true,  false },
+        { BuildingType::SPLITTER,      {1, 1}, 100,  1,    true,   false, false, false, false,   false,   false, true  },
+        { BuildingType::COAL_GENERATOR,{3, 3}, 400,  1,    true,   true,  false, false, true,    false,   false, false }
+    };
+
+    inline const BuildingDefinition* GetBuildingDefinition(BuildingType type) {
+        for (const auto& def : BuildingRegistry) {
+            if (def.type == type) return &def;
+        }
+        return nullptr;
+    }
+
+    // ==========================================
     // ANA YAPI
     // ==========================================
     struct Building {
@@ -62,7 +100,6 @@ namespace Data::WorldData {
     struct HealthComponent {
         BuildingId buildingId = -1;
         int currentHealth = 0;
-        // maxHealth verisi BuildingType'a bağlı olarak ayrı bir konfigürasyondan okunacak
     };
 
     struct InventoryComponent {
@@ -74,7 +111,6 @@ namespace Data::WorldData {
         BuildingId buildingId = -1;
         int currentRecipeId = -1;
         int currentTick = 0;
-        // targetTicks silindi. Her tick RecipeDatabase'den (recipe.processingTime) çekilecek.
         bool isProducing = false;
     };
 
