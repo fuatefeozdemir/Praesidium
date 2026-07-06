@@ -2,69 +2,180 @@
 
 namespace Systems::BuildingSystem {
 
-    Data::WorldData::Building* GetBuilding(Data::WorldData::Map& map, int id) {
-        for (auto& building : map.activeBuildings) {
-            if (building.id == id) return &building;
+    // ==========================================
+    // LOOKUP (ARAMA)
+    // ==========================================
+    Data::WorldData::Building* GetBuilding(Data::WorldData::Map& map, Data::WorldData::BuildingId id) {
+        for (int i = 0; i < map.activeBuildingCount; ++i) {
+            if (map.buildings[i].id == id) {
+                return &map.buildings[i];
+            }
         }
         return nullptr;
     }
 
-    Data::WorldData::Building* GetCoreBase(Data::WorldData::Map& map) {
-        for (auto& building : map.activeBuildings) {
-            if (building.type == Data::WorldData::BuildingType::CORE_BASE) return &building;
-        }
-        return nullptr;
-    }
+    // ==========================================
+    // DOĞRULAMA (VALIDATION)
+    // ==========================================
+    bool CanPlaceBuilding(Data::WorldData::Map& map, const Data::WorldData::BuildingDefinition* def, Data::CoreData::Vector2Int position) {
+        for (int y = 0; y < def->defaultSize.y; ++y) {
+            for (int x = 0; x < def->defaultSize.x; ++x) {
+                int worldX = position.x + x;
+                int worldY = position.y + y;
 
-    void CreateGhostBuilding(Data::WorldData::Map& map, Data::WorldData::BuildingType type, int gridX, int gridY) {
-        Data::WorldData::Building ghost;
-        ghost.id = map.nextBuildingID++;
-        ghost.type = type;
-        ghost.isBuilt = false;
-        ghost.buildProgress = 0.0f;
-        ghost.maxBuildTime = 2.0f;
-        ghost.timeSinceLastDeduction = 0.0f;
+                // Tamsayı deterministik chunk hesaplaması
+                int chunkX = worldX >= 0 ? worldX / Data::WorldData::CHUNK_SIZE : (worldX - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
+                int chunkY = worldY >= 0 ? worldY / Data::WorldData::CHUNK_SIZE : (worldY - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
 
-        // Boyutlandırma (Geçici olarak 1x1, türlere göre ayrılacak)
-        ghost.width = 1;
-        ghost.height = 1;
-        ghost.gridX = gridX;
-        ghost.gridY = gridY;
+                // Dünya sınırları kontrolü (Eğer ayarlanmışsa)
+                if (map.worldWidthChunks > 0 && map.worldHeightChunks > 0) {
+                    if (chunkX < 0 || chunkX >= map.worldWidthChunks || chunkY < 0 || chunkY >= map.worldHeightChunks) {
+                        return false; // Harita dışı
+                    }
+                }
 
-        // Geçici test maliyeti: 1 Konveyör = 2 Demir (IRON_ORE) istesin
-        if (type == Data::WorldData::BuildingType::CONVEYOR) {
-            ghost.remainingCost[Data::WorldData::ItemType::IRON_ORE] = 2;
-        }
+                Data::CoreData::Vector2Int chunkPos = {chunkX, chunkY};
+                auto it = map.chunks.find(chunkPos);
 
-        map.activeBuildings.push_back(ghost);
-        int index = gridY * map.width + gridX;
-        map.tiles[index].buildingID = ghost.id;
-    }
+                // Chunk bellekte varsa, tile dolu mu diye bak
+                if (it != map.chunks.end()) {
+                    int localX = worldX - (chunkX * Data::WorldData::CHUNK_SIZE);
+                    int localY = worldY - (chunkY * Data::WorldData::CHUNK_SIZE);
+                    int tileIndex = localY * Data::WorldData::CHUNK_SIZE + localX;
 
-    void CreateCoreBase(Data::WorldData::Map& map) {
-        int centerX = map.width / 2;
-        int centerY = map.height / 2;
+                    if (it->second.tiles[tileIndex].buildingID != -1) {
+                        return false; // Çakışma var, başka bina var
+                    }
 
-        Data::WorldData::Building coreBase;
-        coreBase.id = map.nextBuildingID++;
-        coreBase.type = Data::WorldData::BuildingType::CORE_BASE;
-        coreBase.width = 3;
-        coreBase.height = 3;
-        coreBase.gridX = centerX - 1;
-        coreBase.gridY = centerY - 1;
-        coreBase.maxHealth = 1000;
-        coreBase.health = 1000;
-
-        map.activeBuildings.push_back(coreBase);
-
-        for (int y = coreBase.gridY; y < coreBase.gridY + coreBase.height; y++) {
-            for (int x = coreBase.gridX; x < coreBase.gridX + coreBase.width; x++) {
-                if (x >= 0 && x < map.width && y >= 0 && y < map.height) {
-                    int index = y * map.width + x;
-                    map.tiles[index].buildingID = coreBase.id;
-                    map.tiles[index].ore = Data::WorldData::OreType::NONE; 
+                    // İleride buraya FloorType (Suya inşa edilemez) vb. kontroller de eklenecek
                 }
             }
         }
+        return true;
+    }
+
+    // ==========================================
+    // ALLOCATOR (TAHSİS EDİCİ)
+    // ==========================================
+    Data::WorldData::BuildingId CreateBuilding(
+        Data::WorldData::Map& map,
+        Data::WorldData::BuildingType type,
+        Data::CoreData::Vector2Int position,
+        Data::WorldData::Direction direction)
+    {
+        // 1. Şablonu (Definition) Oku
+        const auto* def = Data::WorldData::GetBuildingDefinition(type);
+        if (!def) return -1; // Geçersiz bina tipi
+
+        // 2. Uzaysal Doğrulama (Collision & Bounds Check)
+        if (!CanPlaceBuilding(map, def, position)) {
+            return -1; // İnşa edilemez alan
+        }
+
+        // 3. Kapasite Ön-Kontrolü (Partial Allocation Koruması)
+        if (map.activeBuildingCount >= Data::WorldData::MAX_BUILDINGS) return -1;
+        if (def->hasHealth && map.activeHealthCount >= Data::WorldData::MAX_BUILDINGS) return -1;
+        if (def->hasInventory && map.activeInventoryCount >= Data::WorldData::MAX_INVENTORIES) return -1;
+        if (def->hasProduction && map.activeProductionCount >= Data::WorldData::MAX_PRODUCTIONS) return -1;
+        if (def->hasExtractor && map.activeExtractorCount >= Data::WorldData::MAX_EXTRACTORS) return -1;
+        if (def->hasPowerProducer && map.activePowerProducerCount >= Data::WorldData::MAX_POWER_NODES) return -1;
+        if (def->hasPowerConsumer && map.activePowerConsumerCount >= Data::WorldData::MAX_POWER_NODES) return -1;
+        if (def->hasConveyor && map.activeConveyorCount >= Data::WorldData::MAX_CONVEYORS) return -1;
+        if (def->hasSplitter && map.activeSplitterCount >= Data::WorldData::MAX_SPLITTERS) return -1;
+
+        // 4. Ana Binayı Tahsis Et
+        Data::WorldData::BuildingId newId = map.nextBuildingID++;
+        int bIndex = map.activeBuildingCount++;
+        auto& building = map.buildings[bIndex];
+
+        building.id = newId;
+        building.type = type;
+        building.position = position;
+        building.size = def->defaultSize;
+        building.direction = direction;
+        building.state = Data::WorldData::BuildingState::ACTIVE; // İleride taslak sistemi için UNDER_CONSTRUCTION yapılacak
+
+        // 5. Componentleri Tahsis Et
+        if (def->hasHealth) {
+            int cIndex = map.activeHealthCount++;
+            map.healths[cIndex].buildingId = newId;
+            map.healths[cIndex].currentHealth = def->baseHealth;
+            building.healthIndex = cIndex;
+        }
+
+        if (def->hasInventory) {
+            int cIndex = map.activeInventoryCount++;
+            map.inventories[cIndex].buildingId = newId;
+            building.inventoryIndex = cIndex;
+        }
+
+        if (def->hasProduction) {
+            int cIndex = map.activeProductionCount++;
+            map.productions[cIndex].buildingId = newId;
+            building.productionIndex = cIndex;
+        }
+
+        if (def->hasExtractor) {
+            int cIndex = map.activeExtractorCount++;
+            map.extractors[cIndex].buildingId = newId;
+            building.extractorIndex = cIndex;
+        }
+
+        if (def->hasPowerProducer) {
+            int cIndex = map.activePowerProducerCount++;
+            map.powerProducers[cIndex].buildingId = newId;
+            building.powerProducerIndex = cIndex;
+        }
+
+        if (def->hasPowerConsumer) {
+            int cIndex = map.activePowerConsumerCount++;
+            map.powerConsumers[cIndex].buildingId = newId;
+            building.powerConsumerIndex = cIndex;
+        }
+
+        if (def->hasConveyor) {
+            int cIndex = map.activeConveyorCount++;
+            map.conveyors[cIndex].buildingId = newId;
+            building.conveyorIndex = cIndex;
+        }
+
+        if (def->hasSplitter) {
+            int cIndex = map.activeSplitterCount++;
+            map.splitters[cIndex].buildingId = newId;
+            building.splitterIndex = cIndex;
+        }
+
+        // 6. Harita (Chunk) Üzerine Yerleştir ve Grid'i İşgal Et
+        for (int y = 0; y < def->defaultSize.y; ++y) {
+            for (int x = 0; x < def->defaultSize.x; ++x) {
+                int worldX = position.x + x;
+                int worldY = position.y + y;
+
+                int chunkX = worldX >= 0 ? worldX / Data::WorldData::CHUNK_SIZE : (worldX - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
+                int chunkY = worldY >= 0 ? worldY / Data::WorldData::CHUNK_SIZE : (worldY - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
+
+                Data::CoreData::Vector2Int chunkPos = {chunkX, chunkY};
+
+                auto& chunk = map.chunks[chunkPos];
+                chunk.position = chunkPos;
+                chunk.isLoaded = true;
+                chunk.needsSimulation = true;
+                chunk.isModified = true;
+
+                int localX = worldX - (chunkX * Data::WorldData::CHUNK_SIZE);
+                int localY = worldY - (chunkY * Data::WorldData::CHUNK_SIZE);
+
+                chunk.tiles[localY * Data::WorldData::CHUNK_SIZE + localX].buildingID = newId;
+            }
+        }
+
+        return newId;
+    }
+
+    // ==========================================
+    // DEALLOCATOR (SİLİCİ)
+    // ==========================================
+    void DestroyBuilding(Data::WorldData::Map& map, Data::WorldData::BuildingId id) {
+        // İleride eklenecek
     }
 }
