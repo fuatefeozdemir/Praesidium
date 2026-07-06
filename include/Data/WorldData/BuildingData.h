@@ -1,63 +1,112 @@
 #pragma once
-#include <vector>
-#include <optional>
+#include "raylib.h"
 #include "ItemData.h"
+#include "RecipeData.h"
+#include "../CoreData/Vector2Int.h"
 
 namespace Data::WorldData {
 
+    using BuildingId = int;
+
     enum class BuildingType {
-        NONE, CORE_BASE, WALL, CONVEYOR, FACTORY, TURRET
+        NONE = 0,
+        WALL,
+        MINER,
+        FURNACE,
+        CONVEYOR_BELT,
+        SPLITTER,
+        COAL_GENERATOR
+        // İleride genişletilecek
     };
 
-    // 1. Üretim Yapan Binalar İçin (Fabrikalar, Fırınlar)
-    struct FactoryComponent {
-        int activeRecipeID = -1;
-        int currentCraftingTicks = 0;
-        // Fabrikaların girdileri ve çıktıları ayrı tutulmalı ki bantlar nereye eşya vereceğini bilsin
-        int inputBuffer[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
-        int outputBuffer[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
+    enum class BuildingState {
+        ACTIVE,
+        DISABLED,
+        NO_POWER,
+        NO_INPUT,
+        BROKEN
     };
 
-    // 2. Taşıma Bantları İçin
-    struct ConveyorComponent {
-        int direction; // 0: Kuzey, 1: Doğu, 2: Güney, 3: Batı
-        ItemType currentItem = ItemType::NONE;
-        int moveProgressTicks = 0;
+    enum class Direction {
+        NORTH, EAST, SOUTH, WEST
     };
 
-    // 3. Savunma Binaları İçin (Kuleler)
-    struct TurretComponent {
-        int range;
-        int damage;
-        int fireRateCooldownTicks;
-        int currentCooldownTicks = 0;
-        // Eğer mermi kullanıyorsa kendi küçük envanteri
-        int ammoStorage[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
-    };
-
-    // ANA BİNA YAPISI
+    // ==========================================
+    // ANA YAPI
+    // ==========================================
     struct Building {
-        int id;
-        BuildingType type;
+        BuildingId id = 0;
+        BuildingType type = BuildingType::NONE;
+        int tier = 1;
+        BuildingState state = BuildingState::ACTIVE;
 
-        // Ortak Fiziksel Özellikler
-        int gridX, gridY;
-        int width, height;
-        int health;
-        int maxHealth;
+        CoreData::Vector2Int position = {0, 0};
+        CoreData::Vector2Int size = {1, 1};
+        Direction direction = Direction::NORTH;
 
-        // Üs Envanteri (Sadece CORE_BASE kullanacak)
-        int globalInventory[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
+        // Component İndeksleri (-1 = Yok)
+        int inventoryIndex = -1;
+        int productionIndex = -1;
+        int extractorIndex = -1;
+        int powerProducerIndex = -1;
+        int powerConsumerIndex = -1;
+        int conveyorIndex = -1;
+        int splitterIndex = -1;
+        int healthIndex = -1;
+    };
 
-        bool isBuilt = false;         // Bina tamamlandı mı? (False ise şantiyedir)
-        int buildProgressTicks = 0;
-        int maxBuildTicks = 120;      // 2 saniye * 60 tick = 120 tick
-        int remainingCost[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0}; // Kalan inşaat maliyeti
-        int ticksSinceLastDeduction = 0;
+    // ==========================================
+    // COMPONENTS
+    // ==========================================
 
-        // BİLEŞENLER (Sadece ilgili bina türlerinde dolu olacak)
-        std::optional<FactoryComponent> factoryData;
-        std::optional<ConveyorComponent> conveyorData;
-        std::optional<TurretComponent> turretData;
+    struct HealthComponent {
+        BuildingId buildingId = -1;
+        int currentHealth = 0;
+        // maxHealth verisi BuildingType'a bağlı olarak ayrı bir konfigürasyondan okunacak
+    };
+
+    struct InventoryComponent {
+        BuildingId buildingId = -1;
+        int items[static_cast<int>(ItemType::MAX_ITEM_COUNT)] = {0};
+    };
+
+    struct ProductionComponent {
+        BuildingId buildingId = -1;
+        int currentRecipeId = -1;
+        int currentTick = 0;
+        // targetTicks silindi. Her tick RecipeDatabase'den (recipe.processingTime) çekilecek.
+        bool isProducing = false;
+    };
+
+    struct ExtractorComponent {
+        BuildingId buildingId = -1;
+        ItemType targetOre = ItemType::NONE;
+        int ticksPerMine = 0;
+        int currentTick = 0;
+    };
+
+    struct PowerProducerComponent {
+        BuildingId buildingId = -1;
+        int generationRate = 0;
+        bool isActive = false;
+    };
+
+    struct PowerConsumerComponent {
+        BuildingId buildingId = -1;
+        int consumptionRate = 0;
+        int storedEnergy = 0;
+        bool isPowered = false;
+    };
+
+    struct ConveyorComponent {
+        BuildingId buildingId = -1;
+        ItemType currentItem = ItemType::NONE;
+        int progressTick = 0;
+        int ticksToMove = 0;
+    };
+
+    struct SplitterComponent {
+        BuildingId buildingId = -1;
+        int outputCounter = 0;
     };
 }
