@@ -8,6 +8,9 @@ namespace Systems::MapSystem {
     // KOORDİNAT VE YARDIMCI FONKSİYONLAR
     // ==========================================
 
+    // Piksel (Dünya) koordinatını, Tile (Grid) koordinatına çevirir (Negatif eksen destekli)
+    Data::CoreData::Vector2Int PixelToTile(int pixelX, int pixelY);
+
     // Dünya koordinatını Chunk koordinatına çevirir (Negatif eksen destekli).
     Data::CoreData::Vector2Int WorldToChunk(Data::CoreData::Vector2Int worldPos);
 

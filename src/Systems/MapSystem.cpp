@@ -1,10 +1,17 @@
 #include "../../include/Systems/MapSystem.h"
+#include "../../include/Engine/Config/WorldConfig.h"
 
 namespace Systems::MapSystem {
 
     // ==========================================
     // KOORDİNAT VE YARDIMCI FONKSİYONLAR
     // ==========================================
+
+    Data::CoreData::Vector2Int PixelToTile(int pixelX, int pixelY) {
+        int tileX = pixelX >= 0 ? pixelX / Engine::Config::TILE_SIZE : (pixelX - Engine::Config::TILE_SIZE + 1) / Engine::Config::TILE_SIZE;
+        int tileY = pixelY >= 0 ? pixelY / Engine::Config::TILE_SIZE : (pixelY - Engine::Config::TILE_SIZE + 1) / Engine::Config::TILE_SIZE;
+        return {tileX, tileY};
+    }
 
     Data::CoreData::Vector2Int WorldToChunk(Data::CoreData::Vector2Int worldPos) {
         // Tamsayı bölmesinde negatif koordinatların 0'a yuvarlanmasını engelleyen formül
