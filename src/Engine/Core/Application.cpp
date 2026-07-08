@@ -27,8 +27,8 @@ namespace Engine::Core::Application {
     void Run() {
         InitializeEngine();
 
-        Data::CoreData::GameContext gameContext;
-        InitializeGame(gameContext);
+        auto* gameContext = new Data::CoreData::GameContext();
+        InitializeGame(*gameContext);
 
         // Durum nesnelerini (State Objects) oluştur
         MainMenuState mainMenu;
@@ -42,11 +42,11 @@ namespace Engine::Core::Application {
         double accumulator = 0.0;
 
         // --- ANA OYUN DÖNGÜSÜ ---
-        while (!WindowShouldClose() && gameContext.currentState != AppState::EXIT_REQUESTED) {
+        while (!WindowShouldClose() && gameContext->currentState != AppState::EXIT_REQUESTED) {
             if (IsKeyPressed(KEY_F11)) ToggleFullscreen();
 
             // Durum değişmişse işaretçiyi (pointer) ilgili sınıfa yönlendir
-            switch (gameContext.currentState) {
+            switch (gameContext->currentState) {
                 case AppState::MAIN_MENU: activeState = &mainMenu; break;
                 case AppState::ACTIVE_SIMULATION: activeState = &activeSim; break;
                 case AppState::PAUSED: activeState = &pausedSim; break;
@@ -57,13 +57,13 @@ namespace Engine::Core::Application {
 
             while (accumulator >= TICK_RATE) {
                 // GÜNCELLEME (Aktif sınıf kendi Update fonksiyonunu çalıştırır)
-                activeState->Update(&gameContext);
+                activeState->Update(gameContext);
                 accumulator -= TICK_RATE;
             }
 
             // ÇİZİM (Aktif sınıf kendi Draw fonksiyonunu çalıştırır)
             BeginDrawing();
-            activeState->Draw(&gameContext);
+            activeState->Draw(gameContext);
             EndDrawing();
         }
 
