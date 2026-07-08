@@ -39,6 +39,8 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Systems/BuildingMenuSystem.h
         include/Systems/MapSystem.h
         include/Data/CoreData/Vector2Int.h
+        include/Systems/CameraSystem.h
+        src/Systems/CameraSystem.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)
