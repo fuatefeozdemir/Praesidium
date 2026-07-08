@@ -41,6 +41,7 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Data/CoreData/Vector2Int.h
         include/Systems/CameraSystem.h
         src/Systems/CameraSystem.cpp
+        include/Engine/Config/WorldConfig.h
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)

@@ -1,5 +1,6 @@
 #include "../../include/Systems/PlayerSystem.h"
 #include "../../include/Systems/CameraSystem.h"
+#include "../../include/Systems/MapSystem.h"
 #include "../../include/Data/EntityData/ActionData.h"
 #include "../../include/Data/WorldData/MapData.h"
 #include "../../include/Systems/InteractionSystem.h"
@@ -8,9 +9,6 @@
 
 // --- CLIENT-SIDE MANTIĞI ---
 namespace Systems::PlayerSystem {
-
-    // İleride ortak bir ayar (Config) veya MathUtils dosyasına alınabilir
-    constexpr int TILE_SIZE = 32;
 
     void Update(Data::CoreData::GameContext* context) {
         // context içindeki verileri referansa alıyoruz
@@ -36,15 +34,13 @@ namespace Systems::PlayerSystem {
         // 2. Etkileşim İstekleri (Client)
         Vector2 worldMouse = Systems::CameraSystem::GetWorldMousePosition();
 
-        // Piksel koordinatından Tile (Grid) koordinatına dönüşüm ve negatif alan düzeltmesi
-        int targetGridX = worldMouse.x >= 0 ? static_cast<int>(worldMouse.x) / TILE_SIZE : (static_cast<int>(worldMouse.x) - TILE_SIZE + 1) / TILE_SIZE;
-        int targetGridY = worldMouse.y >= 0 ? static_cast<int>(worldMouse.y) / TILE_SIZE : (static_cast<int>(worldMouse.y) - TILE_SIZE + 1) / TILE_SIZE;
-
         // CLANG-TIDY DÜZELTMESİ: {} ile ilk değer ataması (Zero-initialization) yapıldı
         Data::EntityData::PlayerAction requestedAction{};
         requestedAction.playerID = 1;
         requestedAction.type = Data::EntityData::ActionType::NONE;
-        requestedAction.targetPos = {targetGridX, targetGridY};
+
+        // Yeni API kullanımı ile matematiği MapSystem'e devrettik
+        requestedAction.targetPos = Systems::MapSystem::PixelToTile(static_cast<int>(worldMouse.x), static_cast<int>(worldMouse.y));
 
         // EĞER FARE MENÜ ÜZERİNDEYSE VEYA MENÜ İKONUNA TIKLANDIYSA (Tıklama Tüketimi)
         if (Systems::BuildingMenuSystem::Update(uiState)) {
@@ -71,15 +67,11 @@ namespace Systems::PlayerSystem {
         else if (IsKeyPressed(KEY_E)) {
             requestedAction.type = Data::EntityData::ActionType::TRANSFER_BASE;
 
-            // Oyuncunun piksel pozisyonunu Tile pozisyonuna çevir (Negatif alan düzeltmeli)
-            int playerGridX = player.position.x >= 0 ? player.position.x / TILE_SIZE : (player.position.x - TILE_SIZE + 1) / TILE_SIZE;
-            int playerGridY = player.position.y >= 0 ? player.position.y / TILE_SIZE : (player.position.y - TILE_SIZE + 1) / TILE_SIZE;
-
-            requestedAction.targetPos = {playerGridX, playerGridY};
+            // Oyuncunun piksel pozisyonunu Tile pozisyonuna çevir
+            requestedAction.targetPos = Systems::MapSystem::PixelToTile(player.position.x, player.position.y);
         }
 
         if (requestedAction.type != Data::EntityData::ActionType::NONE) {
-            // PARAMETRE DÜZELTMESİ: Fazladan olan 4. parametre (1.0f / 60.0f) silindi.
             Systems::InteractionSystem::ExecuteActionOnServer(player, map, requestedAction);
         } else {
             player.actionTimer = 0;
