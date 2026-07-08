@@ -1,4 +1,5 @@
 #pragma once
+#include "../CoreData/Vector2Int.h"
 #include "../WorldData/BuildingData.h"
 
 namespace Data::EntityData {
@@ -12,10 +13,9 @@ namespace Data::EntityData {
     };
 
     struct PlayerAction {
-        int playerID;          // Multiplayer için kimin yaptığı önemli
+        int playerID;                            // Multiplayer için kimin yaptığı önemli
         ActionType type;
-        int gridX;             // Hedef X koordinatı
-        int gridY;             // Hedef Y koordinatı
+        Data::CoreData::Vector2Int targetPos;    // Hedef koordinat
         Data::WorldData::BuildingType buildType; // Eğer inşa ise hangi bina
     };
 }
