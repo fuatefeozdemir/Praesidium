@@ -3,9 +3,8 @@
 #include "../../../include/Systems/PlayerSystem.h"
 #include "../../../include/Interface/UI/MainMenuRenderer.h"
 #include "../../../include/Interface/World/MapRenderer.h"
-#include "../../../include/Interface/World/BuildingRenderer.h"
 #include "../../../include/Interface/UI/BuildingMenuRenderer.h"
-#include "../../../include/Engine/Core/Camera.h"
+#include "../../../include/Systems/CameraSystem.h"
 
 namespace Engine::Core {
 
@@ -22,20 +21,36 @@ namespace Engine::Core {
     // --- ACTIVE SIMULATION ---
     void ActiveSimulationState::Update(Data::CoreData::GameContext* context) {
         Systems::PlayerSystem::Update(context);
-        Engine::Core::Camera::Update(context->player.position);
-        
+
+        // Custom Vector2Int verisini Raylib Vector2'sine (float) dönüştür
+        Vector2 targetPos = {
+            static_cast<float>(context->player.position.x),
+            static_cast<float>(context->player.position.y)
+        };
+
+        Systems::CameraSystem::SetTarget(targetPos);
+        Systems::CameraSystem::Update();
+
         if (IsKeyPressed(KEY_ESCAPE)) context->currentState = AppState::PAUSED;
     }
 
     void ActiveSimulationState::Draw(Data::CoreData::GameContext* context) {
         ClearBackground(Color{ 20, 20, 20, 255 });
 
-        Engine::Core::Camera::BeginWorldDrawing();
-        Interface::World::MapRenderer::Draw(context);
-        Interface::World::BuildingRenderer::Draw(context);
-        DrawCircleV(context->player.position, context->player.collisionRadius, BLUE);
-        DrawCircleV(Engine::Core::Camera::GetWorldMousePosition(), 5.0f, RED);
-        Engine::Core::Camera::EndWorldDrawing();
+        Systems::CameraSystem::BeginWorldDrawing();
+
+        Interface::World::MapRenderer::Draw(context->worldMap);
+
+        // Çizim için float dönüşümü
+        Vector2 playerPos = {
+            static_cast<float>(context->player.position.x),
+            static_cast<float>(context->player.position.y)
+        };
+
+        DrawCircleV(playerPos, context->player.collisionRadius, BLUE);
+        DrawCircleV(Systems::CameraSystem::GetWorldMousePosition(), 5.0f, RED);
+
+        Systems::CameraSystem::EndWorldDrawing();
 
         Interface::UI::BuildingMenuRenderer::Draw(context);
     }
