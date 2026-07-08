@@ -1,6 +1,9 @@
 #pragma once
-#include "../../Data/CoreData/GameContext.h"
+#include "../../Data/WorldData/MapData.h"
 
 namespace Interface::World::MapRenderer {
-    void Draw(const Data::CoreData::GameContext* context);
+
+    // Her frame çağrılacak ana çizim fonksiyonu
+    void Draw(const Data::WorldData::Map& map);
+
 }
