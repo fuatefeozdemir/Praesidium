@@ -130,19 +130,11 @@ namespace Systems::BuildingSystem {
             building.splitterIndex = cIndex;
         }
 
-        // 6. Harita (Chunk) Üzerine Yerleştir ve Grid'i İşgal Et
+        // 6. Harita Üzerine Yerleştir ve Grid'i İşgal Et
         for (int y = 0; y < def->defaultSize.y; ++y) {
             for (int x = 0; x < def->defaultSize.x; ++x) {
                 Data::CoreData::Vector2Int worldPos = {position.x + x, position.y + y};
-                Data::CoreData::Vector2Int chunkPos = MapSystem::WorldToChunk(worldPos);
-
-                // İlgili Chunk'ı getir veya oluştur
-                Data::WorldData::Chunk& chunk = MapSystem::GetOrCreateChunk(map, chunkPos);
-                chunk.isModified = true;
-
-                // Tile indeksini hesapla ve binayı yerleştir
-                int localIndex = MapSystem::LocalToIndex(MapSystem::WorldToLocal(worldPos));
-                chunk.tiles[localIndex].buildingID = newId;
+                MapSystem::SetTileBuildingID(map, worldPos, newId);
             }
         }
 

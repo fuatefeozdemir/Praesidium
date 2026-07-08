@@ -38,6 +38,13 @@ namespace Systems::MapSystem {
     // TILE ERİŞİM API
     // ==========================================
 
+    void SetTileBuildingID(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos, Data::WorldData::BuildingId id) {
+        Data::WorldData::Tile* tile = GetOrCreateTile(map, worldPos);
+        if (tile) {
+            tile->buildingID = id;
+        }
+    }
+
     Data::WorldData::Tile* GetTile(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos) {
         Data::WorldData::Chunk* chunk = GetChunkFromWorldPos(map, worldPos);
         if (!chunk) return nullptr;

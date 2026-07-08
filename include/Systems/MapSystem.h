@@ -24,6 +24,9 @@ namespace Systems::MapSystem {
     // TILE ERİŞİM API
     // ==========================================
 
+    // Belirtilen dünya koordinatındaki Tile'ın bina ID'sini günceller. Chunk yoksa güvenli bir şekilde üretir.
+    void SetTileBuildingID(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos, Data::WorldData::BuildingId id);
+
     // Varsa Tile döndürür, yoksa (veya sınır dışıysa) nullptr döner. Sadece okuma işlemleri içindir.
     Data::WorldData::Tile* GetTile(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos);
 
