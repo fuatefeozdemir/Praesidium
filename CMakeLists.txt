@@ -20,8 +20,6 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Data/WorldData/RecipeData.h
         include/Data/WorldData/BuildingData.h
         src/Systems/BuildingSystem.cpp
-        include/Interface/World/BuildingRenderer.h
-        src/Interface/World/BuildingRenderer.cpp
         include/Data/EntityData/ActionData.h
         src/Systems/InteractionSystem.cpp
         include/Interface/World/FloatingText.h
