@@ -1,4 +1,5 @@
 #include "../../include/Systems/BuildingSystem.h"
+#include "../../include/Systems/MapSystem.h"
 
 namespace Systems::BuildingSystem {
 
@@ -20,34 +21,18 @@ namespace Systems::BuildingSystem {
     bool CanPlaceBuilding(Data::WorldData::Map& map, const Data::WorldData::BuildingDefinition* def, Data::CoreData::Vector2Int position) {
         for (int y = 0; y < def->defaultSize.y; ++y) {
             for (int x = 0; x < def->defaultSize.x; ++x) {
-                int worldX = position.x + x;
-                int worldY = position.y + y;
+                Data::CoreData::Vector2Int worldPos = {position.x + x, position.y + y};
+                Data::CoreData::Vector2Int chunkPos = MapSystem::WorldToChunk(worldPos);
 
-                // Tamsayı deterministik chunk hesaplaması
-                int chunkX = worldX >= 0 ? worldX / Data::WorldData::CHUNK_SIZE : (worldX - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
-                int chunkY = worldY >= 0 ? worldY / Data::WorldData::CHUNK_SIZE : (worldY - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
-
-                // Dünya sınırları kontrolü (Eğer ayarlanmışsa)
-                if (map.worldWidthChunks > 0 && map.worldHeightChunks > 0) {
-                    if (chunkX < 0 || chunkX >= map.worldWidthChunks || chunkY < 0 || chunkY >= map.worldHeightChunks) {
-                        return false; // Harita dışı
-                    }
+                // Dünya sınırları kontrolü
+                if (!MapSystem::IsInsideWorld(map, chunkPos)) {
+                    return false;
                 }
 
-                Data::CoreData::Vector2Int chunkPos = {chunkX, chunkY};
-                auto it = map.chunks.find(chunkPos);
-
-                // Chunk bellekte varsa, tile dolu mu diye bak
-                if (it != map.chunks.end()) {
-                    int localX = worldX - (chunkX * Data::WorldData::CHUNK_SIZE);
-                    int localY = worldY - (chunkY * Data::WorldData::CHUNK_SIZE);
-                    int tileIndex = localY * Data::WorldData::CHUNK_SIZE + localX;
-
-                    if (it->second.tiles[tileIndex].buildingID != -1) {
-                        return false; // Çakışma var, başka bina var
-                    }
-
-                    // İleride buraya FloorType (Suya inşa edilemez) vb. kontroller de eklenecek
+                // Chunk bellekte varsa, tile dolu mu kontrol et (Chunk yoksa boştur, yerleştirilebilir)
+                Data::WorldData::Tile* tile = MapSystem::GetTile(map, worldPos);
+                if (tile && tile->buildingID != -1) {
+                    return false; // Çakışma var
                 }
             }
         }
@@ -93,7 +78,7 @@ namespace Systems::BuildingSystem {
         building.position = position;
         building.size = def->defaultSize;
         building.direction = direction;
-        building.state = Data::WorldData::BuildingState::ACTIVE; // İleride taslak sistemi için UNDER_CONSTRUCTION yapılacak
+        building.state = Data::WorldData::BuildingState::ACTIVE;
 
         // 5. Componentleri Tahsis Et
         if (def->hasHealth) {
@@ -148,24 +133,16 @@ namespace Systems::BuildingSystem {
         // 6. Harita (Chunk) Üzerine Yerleştir ve Grid'i İşgal Et
         for (int y = 0; y < def->defaultSize.y; ++y) {
             for (int x = 0; x < def->defaultSize.x; ++x) {
-                int worldX = position.x + x;
-                int worldY = position.y + y;
+                Data::CoreData::Vector2Int worldPos = {position.x + x, position.y + y};
+                Data::CoreData::Vector2Int chunkPos = MapSystem::WorldToChunk(worldPos);
 
-                int chunkX = worldX >= 0 ? worldX / Data::WorldData::CHUNK_SIZE : (worldX - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
-                int chunkY = worldY >= 0 ? worldY / Data::WorldData::CHUNK_SIZE : (worldY - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
-
-                Data::CoreData::Vector2Int chunkPos = {chunkX, chunkY};
-
-                auto& chunk = map.chunks[chunkPos];
-                chunk.position = chunkPos;
-                chunk.isLoaded = true;
-                chunk.needsSimulation = true;
+                // İlgili Chunk'ı getir veya oluştur
+                Data::WorldData::Chunk& chunk = MapSystem::GetOrCreateChunk(map, chunkPos);
                 chunk.isModified = true;
 
-                int localX = worldX - (chunkX * Data::WorldData::CHUNK_SIZE);
-                int localY = worldY - (chunkY * Data::WorldData::CHUNK_SIZE);
-
-                chunk.tiles[localY * Data::WorldData::CHUNK_SIZE + localX].buildingID = newId;
+                // Tile indeksini hesapla ve binayı yerleştir
+                int localIndex = MapSystem::LocalToIndex(MapSystem::WorldToLocal(worldPos));
+                chunk.tiles[localIndex].buildingID = newId;
             }
         }
 
