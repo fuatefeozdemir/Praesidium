@@ -2,7 +2,7 @@
 #include "../../../include/Engine/Core/GameStates.h"
 #include "raylib.h"
 #include "../../../include/Engine/Core/Window.h"
-#include "../../../include/Engine/Core/Camera.h"
+#include "../../../include/Systems/CameraSystem.h"
 #include "../../../include/Interface/UI/MainMenuRenderer.h"
 #include "../../../include/Systems/MapSystem.h"
 
@@ -12,13 +12,15 @@ namespace Engine::Core::Application {
     namespace {
         void InitializeEngine() {
             Window::Initialize();
-            Camera::Initialize();
+            Systems::CameraSystem::Initialize();
         }
 
         void InitializeGame(Data::CoreData::GameContext& context) {
             Interface::UI::MainMenuRenderer::Initialize();
             context.player = {"Oyuncu", {0, 0}, 300000, 15000, Data::EntityData::PlayerActionState::IDLE, 100, 100, 20, {}};
-            Systems::MapSystem::Initialize(context.worldMap, 100, 100, 64);
+
+            // Seed değeri 12345 olarak belirlendi, testler için 100x100 Chunk'lık (3200x3200 Tile) bir dünya sınırı kondu.
+            Systems::MapSystem::Initialize(context.worldMap, 12345, 100, 100);
         }
     }
 
