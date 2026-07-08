@@ -8,7 +8,7 @@ namespace Systems::BuildingMenuSystem {
         // Test için sadece lojistik ekli.
         if (state->activeCategory == Data::UIData::BuildingCategory::LOGISTICS) {
             Data::UIData::BuildingMenuItem conveyor;
-            conveyor.type = Data::WorldData::BuildingType::CONVEYOR;
+            conveyor.type = Data::WorldData::BuildingType::CONVEYOR_BELT;
             conveyor.name = "Konveyor";
             conveyor.description = "Esyalari tasir.";
             // Maliyet: 2 Demir
