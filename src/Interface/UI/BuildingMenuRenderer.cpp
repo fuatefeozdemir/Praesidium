@@ -1,43 +1,124 @@
 #include "../../../include/Interface/UI/BuildingMenuRenderer.h"
-#include "../../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
+
+#include "raylib.h"
+
+namespace {
+
+    constexpr float PANEL_BORDER_THICKNESS = 2.0f;
+    constexpr float BUTTON_BORDER_THICKNESS = 1.0f;
+
+    constexpr int TITLE_FONT_SIZE = 20;
+    constexpr int SMALL_FONT_SIZE = 10;
+
+} // namespace
 
 namespace Interface::UI::BuildingMenuRenderer {
-    void Draw(const Data::CoreData::GameContext* context) {
-        const auto* menuState = &context->buildingMenu;
-        // 1. Sağ Alt Köşe: Menü Açma/Kapama Butonu
-        Color toggleColor = menuState->isOpen ? RED : DARKGRAY;
-        DrawRectangleRec(menuState->toggleButtonBounds, toggleColor);
-        DrawRectangleLinesEx(menuState->toggleButtonBounds, 2.0f, LIGHTGRAY);
-        DrawText(menuState->isOpen ? "KAPAT" : "MENU",
-                 (int)(menuState->toggleButtonBounds.x + 10),
-                 (int)(menuState->toggleButtonBounds.y + 20), 10, WHITE);
 
-        // 2. İnşa Modu Aktif Uyarısı
-        if (menuState->selectedBuilding != Data::WorldData::BuildingType::NONE) {
-            DrawText("Insa Modu Aktif! (Iptal: Sag Tik)", GetScreenWidth() / 2 - 150, 20, 20, GREEN);
+    void Draw(const Data::CoreData::GameContext* context) {
+
+        const auto& menu = context->buildingMenu;
+
+        // Toggle Button
+
+        const Color toggleColor =
+            menu.isOpen ? RED : DARKGRAY;
+
+        DrawRectangleRec(menu.toggleButtonBounds, toggleColor);
+
+        DrawRectangleLinesEx(
+            menu.toggleButtonBounds,
+            PANEL_BORDER_THICKNESS,
+            LIGHTGRAY
+        );
+
+        DrawText(
+            menu.isOpen ? "CLOSE" : "MENU",
+            static_cast<int>(menu.toggleButtonBounds.x + 10),
+            static_cast<int>(menu.toggleButtonBounds.y + 20),
+            SMALL_FONT_SIZE,
+            WHITE
+        );
+
+        // Build Mode Indicator
+
+        if (menu.selectedBuilding != Data::WorldData::BuildingType::NONE) {
+
+            DrawText(
+                "Build Mode Active (Right Click to Cancel)",
+                GetScreenWidth() / 2 - 170,
+                20,
+                TITLE_FONT_SIZE,
+                GREEN
+            );
         }
 
-        // Menü kapalıysa gerisini çizme
-        if (!menuState->isOpen) return;
+        if (!menu.isOpen) {
+            return;
+        }
 
-        // 3. Ana Panel
-        DrawRectangleRec(menuState->panelBounds, Fade(DARKGRAY, 0.95f));
-        DrawRectangleLinesEx(menuState->panelBounds, 2.0f, LIGHTGRAY);
+        // Main Panel
 
-        // 4. Kategori Sekmesi (Lojistik)
-        Color logColor = (menuState->activeCategory == Data::UIData::BuildingCategory::LOGISTICS) ? GRAY : DARKBLUE;
-        Rectangle logisticsTab = { menuState->panelBounds.x + 20, menuState->panelBounds.y + 10, 80, 30 };
-        DrawRectangleRec(logisticsTab, logColor);
-        DrawText("Lojistik", (int)(logisticsTab.x + 15), (int)(logisticsTab.y + 10), 10, WHITE);
+        DrawRectangleRec(
+            menu.panelBounds,
+            Fade(DARKGRAY, 0.95f)
+        );
 
-        // 5. Binaların Listelenmesi
-        for (const auto& item : menuState->currentCategoryItems) {
-            Color btnColor = (menuState->selectedBuilding == item.type) ? GREEN : GRAY;
+        DrawRectangleLinesEx(
+            menu.panelBounds,
+            PANEL_BORDER_THICKNESS,
+            LIGHTGRAY
+        );
 
-            DrawRectangleRec(item.bounds, btnColor);
-            DrawRectangleLinesEx(item.bounds, 1.0f, BLACK);
+        // TODO:
+        // Replace the hardcoded logistics tab with a dynamic category system.
 
-            DrawText(item.name.c_str(), (int)(item.bounds.x + 10), (int)(item.bounds.y + 10), 20, WHITE);
+        const Rectangle logisticsTab = {
+            menu.panelBounds.x + 20,
+            menu.panelBounds.y + 10,
+            80,
+            30
+        };
+
+        const Color tabColor =
+            menu.activeCategory == Data::UIData::BuildingCategory::LOGISTICS
+            ? GRAY
+            : DARKBLUE;
+
+        DrawRectangleRec(logisticsTab, tabColor);
+
+        DrawText(
+            "Logistics",
+            static_cast<int>(logisticsTab.x + 10),
+            static_cast<int>(logisticsTab.y + 10),
+            SMALL_FONT_SIZE,
+            WHITE
+        );
+
+        // Building Buttons
+
+        for (const auto& item : menu.currentCategoryItems) {
+
+            const Color buttonColor =
+                menu.selectedBuilding == item.type
+                ? GREEN
+                : GRAY;
+
+            DrawRectangleRec(item.bounds, buttonColor);
+
+            DrawRectangleLinesEx(
+                item.bounds,
+                BUTTON_BORDER_THICKNESS,
+                BLACK
+            );
+
+            DrawText(
+                item.name.c_str(),
+                static_cast<int>(item.bounds.x + 10),
+                static_cast<int>(item.bounds.y + 10),
+                TITLE_FONT_SIZE,
+                WHITE
+            );
         }
     }
-}
+
+} // namespace Interface::UI::BuildingMenuRenderer

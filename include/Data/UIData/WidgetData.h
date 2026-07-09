@@ -1,30 +1,56 @@
 #pragma once
-#include "raylib.h"
+
 #include <string>
 
-namespace UI {
-    enum class ButtonState { NORMAL, HOVERED, PRESSED };
+#include "raylib.h"
 
-    // Ekranda hizalama noktaları
-    enum class Alignment { CENTER, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
+namespace Data::UIData {
 
-    // Renk paleti
+    enum class ButtonState {
+        NORMAL,
+        HOVERED,
+        PRESSED
+    };
+
+    enum class Alignment {
+        CENTER,
+        TOP_LEFT,
+        TOP_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT
+    };
+
     struct Theme {
-        Color background;
-        Color normal;
-        Color hovered;
-        Color pressed;
-        Color textNormal;
-        Color textHovered;
-        Color border;
+        // Color palette
+        Color background{};
+        Color normal{};
+        Color hovered{};
+        Color pressed{};
+        Color textNormal{};
+        Color textHovered{};
+        Color border{};
     };
 
     struct Button {
-        Rectangle bounds;       // Anlık hesaplanan X, Y, Genişlik, Yükseklik
-        float width, height;    // İstenen sabit genişlik ve yükseklik
-        float offsetX, offsetY; // Hizalama noktasına göre X ve Y sapması
-        Alignment align;        // Hizalama tipi
+        // Calculated bounds
+        Rectangle bounds = {0.0f, 0.0f, 0.0f, 0.0f};
+
+        // Fixed size
+        float width = 0.0f;
+        float height = 0.0f;
+
+        // Alignment offset
+        float offsetX = 0.0f;
+        float offsetY = 0.0f;
+
+        // Alignment point
+        Alignment align = Alignment::CENTER;
+
         std::string text;
-        ButtonState state;
+        ButtonState state = ButtonState::NORMAL;
+
+        // TODO: Separate button layout data from runtime state
+        // if the UI system becomes more complex.
     };
-}
+
+} // namespace Data::UIData

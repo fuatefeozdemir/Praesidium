@@ -1,91 +1,117 @@
 #include "../../include/Systems/InteractionSystem.h"
-#include "../../include/Systems/MapSystem.h"
-#include "../../include/Systems/BuildingSystem.h"
 
 #include <cmath>
 #include <iostream>
 
-namespace Systems::InteractionSystem {
+#include "../../include/Systems/BuildingSystem.h"
+#include "../../include/Systems/MapSystem.h"
 
-    bool IsWithinInteractionRange(Data::CoreData::Vector2Int playerTile,
-                                  Data::CoreData::Vector2Int targetTile,
-                                  int maxRange) {
-        return (std::abs(playerTile.x - targetTile.x) <= maxRange) &&
-               (std::abs(playerTile.y - targetTile.y) <= maxRange);
+namespace {
+
+    constexpr int MINE_RANGE = 2;
+    constexpr int BUILD_RANGE = 3;
+    constexpr int MINE_DURATION = 60;
+
+    bool IsWithinInteractionRange(
+        Data::CoreData::Vector2Int playerTile,
+        Data::CoreData::Vector2Int targetTile,
+        int maxRange) {
+
+        return std::abs(playerTile.x - targetTile.x) <= maxRange &&
+               std::abs(playerTile.y - targetTile.y) <= maxRange;
     }
 
-    void ExecuteActionOnServer(Data::EntityData::Player& player,
-                               Data::WorldData::Map& map,
-                               const Data::EntityData::PlayerAction& action) {
+} // namespace
 
-        Data::CoreData::Vector2Int targetTile = action.targetPos;
-        Data::CoreData::Vector2Int chunkPos = Systems::MapSystem::WorldToChunk(targetTile);
+namespace Systems::InteractionSystem {
 
-        if (!Systems::MapSystem::IsInsideWorld(map, chunkPos))
+    void ExecuteActionOnServer(
+        Data::EntityData::Player& player,
+        Data::WorldData::Map& map,
+        const Data::EntityData::PlayerAction& action) {
+
+        const auto targetTile = action.targetPos;
+        const auto chunkPos = Systems::MapSystem::WorldToChunk(targetTile);
+
+        if (!Systems::MapSystem::IsInsideWorld(map, chunkPos)) {
             return;
+        }
 
-        Data::CoreData::Vector2Int playerTile =
+        const auto playerTile =
             Systems::MapSystem::PixelToTile(player.position.x, player.position.y);
 
-        if (player.lastTargetX != targetTile.x || player.lastTargetY != targetTile.y) {
+        if (player.lastTargetX != targetTile.x ||
+            player.lastTargetY != targetTile.y) {
+
             player.actionTimer = 0;
             player.lastTargetX = targetTile.x;
             player.lastTargetY = targetTile.y;
         }
 
-        Data::WorldData::Tile* tile = Systems::MapSystem::GetOrCreateTile(map, targetTile);
-        if (!tile)
+        auto* tile = Systems::MapSystem::GetOrCreateTile(map, targetTile);
+
+        if (!tile) {
             return;
+        }
 
         switch (action.type) {
 
             case Data::EntityData::ActionType::MINE_ORE: {
 
-                if (!IsWithinInteractionRange(playerTile, targetTile, 2))
+                if (!IsWithinInteractionRange(playerTile, targetTile, MINE_RANGE)) {
                     return;
+                }
 
-                auto targetOre = tile->ore;
+                if (tile->ore == Data::WorldData::ItemType::NONE) {
+                    return;
+                }
 
-                if (targetOre != Data::WorldData::ItemType::NONE) {
+                player.actionTimer++;
 
-                    player.actionTimer++;
+                if (player.actionTimer < MINE_DURATION) {
+                    return;
+                }
 
-                    if (player.actionTimer >= 60) {
+                player.actionTimer = 0;
 
-                        int itemID = static_cast<int>(targetOre);
-                        bool found = false;
+                bool found = false;
 
-                        for (auto& slot : player.inventory) {
-                            if (slot.itemID == itemID) {
-                                slot.count++;
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (!found && player.inventory.size() < player.maxSlots) {
-                            player.inventory.push_back({itemID, 1});
-                        }
-
-                        std::cout << "Maden kazildi." << std::endl;
-                        player.actionTimer = 0;
+                for (auto& slot : player.inventory) {
+                    if (slot.type == tile->ore) {
+                        slot.amount++;
+                        found = true;
+                        break;
                     }
                 }
+
+                if (!found &&
+                    player.inventory.size() < static_cast<size_t>(player.maxSlots)) {
+
+                    player.inventory.push_back({
+                        .type = tile->ore,
+                        .amount = 1
+                    });
+                }
+
+                // TODO: Remove ore from the world once resource depletion is implemented.
+
+                std::cout << "Ore mined." << std::endl;
 
                 break;
             }
 
             case Data::EntityData::ActionType::BUILD: {
 
-                if (!IsWithinInteractionRange(playerTile, targetTile, 3))
+                if (!IsWithinInteractionRange(playerTile, targetTile, BUILD_RANGE)) {
                     return;
-
-                if (tile->buildingID != -1) {
-                    std::cout << "Burada zaten bir bina var." << std::endl;
-                    break;
                 }
 
-                auto id = Systems::BuildingSystem::CreateBuilding(
+                if (tile->buildingId != -1) {
+                    std::cout << "A building already exists here." << std::endl;
+                    return;
+                }
+
+                const auto id = Systems::BuildingSystem::CreateBuilding(
                     map,
                     action.buildType,
                     targetTile,
@@ -93,9 +119,9 @@ namespace Systems::InteractionSystem {
                 );
 
                 if (id != -1) {
-                    std::cout << "Bina olusturuldu. ID: " << id << std::endl;
+                    std::cout << "Building created. ID: " << id << std::endl;
                 } else {
-                    std::cout << "Bina yerlestirilemedi." << std::endl;
+                    std::cout << "Building placement failed." << std::endl;
                 }
 
                 break;
@@ -103,22 +129,24 @@ namespace Systems::InteractionSystem {
 
             case Data::EntityData::ActionType::DEMOLISH: {
 
-                if (!IsWithinInteractionRange(playerTile, targetTile, 3))
+                if (!IsWithinInteractionRange(playerTile, targetTile, BUILD_RANGE)) {
                     return;
+                }
 
-                if (tile->buildingID == -1)
+                if (tile->buildingId == -1) {
                     return;
+                }
 
-                Systems::BuildingSystem::DestroyBuilding(map, tile->buildingID);
+                Systems::BuildingSystem::DestroyBuilding(map, tile->buildingId);
 
-                std::cout << "Yapi silindi." << std::endl;
+                std::cout << "Building destroyed." << std::endl;
 
                 break;
             }
 
             case Data::EntityData::ActionType::TRANSFER_BASE: {
 
-                std::cout << "TRANSFER_BASE henuz uygulanmadi." << std::endl;
+                std::cout << "TRANSFER_BASE is not implemented yet." << std::endl;
 
                 break;
             }
@@ -128,4 +156,4 @@ namespace Systems::InteractionSystem {
         }
     }
 
-}
+} // namespace Systems::InteractionSystem

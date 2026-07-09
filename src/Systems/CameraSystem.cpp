@@ -1,27 +1,35 @@
 #include "../../include/Systems/CameraSystem.h"
+
 #include "raymath.h"
 
 namespace {
-    // Şimdilik global, ileride GameContext veya WindowContext içine taşınabilir
+
+    constexpr float MIN_ZOOM = 0.2f;
+    constexpr float MAX_ZOOM = 3.0f;
+    constexpr float ZOOM_STEP = 0.1f;
+
+    // Global camera instance
     Camera2D camera{};
-}
+
+} // namespace
 
 namespace Systems::CameraSystem {
 
     void Initialize() {
-        camera.target = { 0.0f, 0.0f };
-        camera.offset = { static_cast<float>(GetScreenWidth()) / 2.0f, static_cast<float>(GetScreenHeight()) / 2.0f };
+        camera.target = {0.0f, 0.0f};
+        camera.offset = {
+            static_cast<float>(GetScreenWidth()) / 2.0f,
+            static_cast<float>(GetScreenHeight()) / 2.0f
+        };
         camera.rotation = 0.0f;
         camera.zoom = 1.0f;
     }
 
     void Update() {
-        // İleride input sistemi ayrıldığında bu blok oraya taşınabilir,
-        // şimdilik en temel kamera özelliği olduğu için burada kalması pratik.
         float wheelMove = GetMouseWheelMove();
+
         if (wheelMove != 0.0f) {
-            float newZoom = camera.zoom + (wheelMove * 0.1f);
-            SetZoom(newZoom);
+            SetZoom(camera.zoom + wheelMove * ZOOM_STEP);
         }
     }
 
@@ -40,9 +48,8 @@ namespace Systems::CameraSystem {
     void SetZoom(float zoom) {
         camera.zoom = zoom;
 
-        // Zoom sınırları (Min: 0.2x, Max: 3.0x)
-        if (camera.zoom < 0.2f) camera.zoom = 0.2f;
-        if (camera.zoom > 3.0f) camera.zoom = 3.0f;
+        if (camera.zoom < MIN_ZOOM) camera.zoom = MIN_ZOOM;
+        if (camera.zoom > MAX_ZOOM) camera.zoom = MAX_ZOOM;
     }
 
     void Move(Vector2 delta) {
@@ -64,4 +71,5 @@ namespace Systems::CameraSystem {
     const Camera2D& GetCamera() {
         return camera;
     }
-}
+
+} // namespace Systems::CameraSystem

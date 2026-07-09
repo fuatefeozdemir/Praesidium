@@ -1,100 +1,240 @@
 #include "../../../../include/Interface/UI/MainMenuRenderer.h"
-#include "../../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
+
+#include "raylib.h"
+
+namespace {
+
+    constexpr int BUTTON_WIDTH = 400;
+    constexpr int BUTTON_HEIGHT = 60;
+    constexpr int BUTTON_SPACING = 20;
+
+    constexpr int PANEL_WIDTH = 500;
+    constexpr float TITLE_FONT_SIZE = 72.0f;
+    constexpr float TITLE_SPACING = 10.0f;
+    constexpr float BUTTON_FONT_SIZE = 28.0f;
+    constexpr float BUTTON_TEXT_SPACING = 2.0f;
+    constexpr float TITLE_POS_Y = 120.0f;
+
+    constexpr Color PANEL_COLOR = { 5, 5, 5, 210 };
+    constexpr Color TEXT_NORMAL = { 150, 150, 150, 255 };
+    constexpr Color TEXT_HOVER = { 255, 255, 255, 255 };
+
+    Rectangle startButton{};
+    Rectangle settingsButton{};
+    Rectangle exitButton{};
+
+    Font themeFont{};
+    Font buttonFont{};
+    Texture2D backgroundTexture{};
+
+    void DrawButton(
+        Rectangle bounds,
+        const char* text,
+        Vector2 mousePosition,
+        Font font) {
+
+        const bool isHovered = CheckCollisionPointRec(mousePosition, bounds);
+        const Color textColor = isHovered ? TEXT_HOVER : TEXT_NORMAL;
+
+        const Vector2 textSize = MeasureTextEx(
+            font,
+            text,
+            BUTTON_FONT_SIZE,
+            BUTTON_TEXT_SPACING
+        );
+
+        const Vector2 textPosition = {
+            bounds.x + (bounds.width - textSize.x) / 2.0f,
+            bounds.y + (bounds.height - textSize.y) / 2.0f
+        };
+
+        if (isHovered) {
+            DrawRectangle(
+                static_cast<int>(bounds.x + 100),
+                static_cast<int>(bounds.y + bounds.height - 10),
+                static_cast<int>(bounds.width - 200),
+                2,
+                TEXT_HOVER
+            );
+        }
+
+        DrawTextEx(
+            font,
+            text,
+            textPosition,
+            BUTTON_FONT_SIZE,
+            BUTTON_TEXT_SPACING,
+            textColor
+        );
+    }
+
+} // namespace
 
 namespace Interface::UI::MainMenuRenderer {
 
-    const int BUTTON_WIDTH = 400;
-    const int BUTTON_HEIGHT = 60;
-    const int BUTTON_SPACING = 20;
-
-    const Color PANEL_COLOR = { 5, 5, 5, 210 };
-    const Color TEXT_NORMAL = { 150, 150, 150, 255 };
-    const Color TEXT_HOVER = { 255, 255, 255, 255 };
-
-    Rectangle startButton;
-    Rectangle settingsButton;
-    Rectangle exitButton;
-
-    Font themeFont;
-    Font buttonFont;
-    Texture2D bgTexture;
-
     void Initialize() {
-        int screenWidth = GetScreenWidth();
-        int screenHeight = GetScreenHeight();
 
-        themeFont = LoadFontEx(ASSETS_DIR "fonts/theme_font.ttf", 96, 0, 0);
-        SetTextureFilter(themeFont.texture, TEXTURE_FILTER_BILINEAR);
+        const int screenWidth = GetScreenWidth();
+        const int screenHeight = GetScreenHeight();
+
+        themeFont = LoadFontEx(
+            ASSETS_DIR "fonts/theme_font.ttf",
+            96,
+            nullptr,
+            0
+        );
+
+        SetTextureFilter(
+            themeFont.texture,
+            TEXTURE_FILTER_BILINEAR
+        );
 
         buttonFont = GetFontDefault();
 
-        bgTexture = LoadTexture(ASSETS_DIR "textures/bg_wood.png");
+        backgroundTexture = LoadTexture(
+            ASSETS_DIR "textures/bg_wood.png"
+        );
 
-        int totalButtonsHeight = (3 * BUTTON_HEIGHT) + (2 * BUTTON_SPACING);
-        int startY = (screenHeight - totalButtonsHeight) / 2 + 100;
+        const int totalButtonsHeight =
+            (3 * BUTTON_HEIGHT) + (2 * BUTTON_SPACING);
 
-        startButton = { (float)(screenWidth - BUTTON_WIDTH) / 2, (float)startY, BUTTON_WIDTH, BUTTON_HEIGHT };
-        settingsButton = { (float)(screenWidth - BUTTON_WIDTH) / 2, (float)(startY + BUTTON_HEIGHT + BUTTON_SPACING), BUTTON_WIDTH, BUTTON_HEIGHT };
-        exitButton = { (float)(screenWidth - BUTTON_WIDTH) / 2, (float)(startY + (BUTTON_HEIGHT + BUTTON_SPACING) * 2), BUTTON_WIDTH, BUTTON_HEIGHT };
+        const int startY =
+            (screenHeight - totalButtonsHeight) / 2 + 100;
+
+        startButton = {
+            static_cast<float>((screenWidth - BUTTON_WIDTH) / 2),
+            static_cast<float>(startY),
+            static_cast<float>(BUTTON_WIDTH),
+            static_cast<float>(BUTTON_HEIGHT)
+        };
+
+        settingsButton = {
+            startButton.x,
+            static_cast<float>(startY + BUTTON_HEIGHT + BUTTON_SPACING),
+            static_cast<float>(BUTTON_WIDTH),
+            static_cast<float>(BUTTON_HEIGHT)
+        };
+
+        exitButton = {
+            startButton.x,
+            static_cast<float>(startY + (BUTTON_HEIGHT + BUTTON_SPACING) * 2),
+            static_cast<float>(BUTTON_WIDTH),
+            static_cast<float>(BUTTON_HEIGHT)
+        };
     }
+        void Update(Data::CoreData::AppState& currentState) {
 
-    void Update(AppState& currentState) {
-        Vector2 mousePos = GetMousePosition();
+        const Vector2 mousePosition = GetMousePosition();
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            if (CheckCollisionPointRec(mousePos, startButton)) currentState = AppState::ACTIVE_SIMULATION;
-            else if (CheckCollisionPointRec(mousePos, settingsButton)) { /* Ayarlar AppState::SETTINGS */ }
-            else if (CheckCollisionPointRec(mousePos, exitButton)) currentState = AppState::EXIT_REQUESTED;
+        if (!IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            return;
+        }
+
+        if (CheckCollisionPointRec(mousePosition, startButton)) {
+            currentState = Data::CoreData::AppState::ACTIVE_SIMULATION;
+            return;
+        }
+
+        if (CheckCollisionPointRec(mousePosition, settingsButton)) {
+            // TODO: Implement the settings menu.
+            return;
+        }
+
+        if (CheckCollisionPointRec(mousePosition, exitButton)) {
+            currentState = Data::CoreData::AppState::EXIT_REQUESTED;
         }
     }
 
     void Draw() {
-        int screenWidth = GetScreenWidth();
-        int screenHeight = GetScreenHeight();
-        Vector2 mousePos = GetMousePosition();
+
+        const int screenWidth = GetScreenWidth();
+        const int screenHeight = GetScreenHeight();
+        const Vector2 mousePosition = GetMousePosition();
 
         ClearBackground(BLACK);
 
-        if (bgTexture.id != 0) {
-            Rectangle source = { 0.0f, 0.0f, (float)bgTexture.width, (float)bgTexture.height };
-            Rectangle dest = { 0.0f, 0.0f, (float)screenWidth, (float)screenHeight };
-            DrawTexturePro(bgTexture, source, dest, Vector2{ 0, 0 }, 0.0f, WHITE);
+        if (backgroundTexture.id != 0) {
+
+            DrawTexturePro(
+                backgroundTexture,
+                {
+                    0.0f,
+                    0.0f,
+                    static_cast<float>(backgroundTexture.width),
+                    static_cast<float>(backgroundTexture.height)
+                },
+                {
+                    0.0f,
+                    0.0f,
+                    static_cast<float>(screenWidth),
+                    static_cast<float>(screenHeight)
+                },
+                { 0.0f, 0.0f },
+                0.0f,
+                WHITE
+            );
         }
 
-        int panelWidth = 500;
-        int panelX = (screenWidth - panelWidth) / 2;
-        DrawRectangle(panelX, 0, panelWidth, screenHeight, PANEL_COLOR);
+        DrawRectangle(
+            (screenWidth - PANEL_WIDTH) / 2,
+            0,
+            PANEL_WIDTH,
+            screenHeight,
+            PANEL_COLOR
+        );
 
-        const char* title = "PRAESIDIUM";
-        float fontSize = 72;
-        float fontSpacing = 10;
-        float titleWidth = MeasureTextEx(themeFont, title, fontSize, fontSpacing).x;
-        Vector2 titlePos = { (screenWidth - titleWidth) / 2.0f, 120.0f };
-        DrawTextEx(themeFont, title, titlePos, fontSize, fontSpacing, TEXT_HOVER);
+        constexpr const char* TITLE = "PRAESIDIUM";
 
-        auto DrawModernButton = [](Rectangle bounds, const char* text, Vector2 mouse, Font font) {
-            bool isHovered = CheckCollisionPointRec(mouse, bounds);
-            Color currentText = isHovered ? TEXT_HOVER : TEXT_NORMAL;
+        const float titleWidth = MeasureTextEx(
+            themeFont,
+            TITLE,
+            TITLE_FONT_SIZE,
+            TITLE_SPACING
+        ).x;
 
-            float textFontSize = 28;
-            float spacing = 2;
-            Vector2 textDim = MeasureTextEx(font, text, textFontSize, spacing);
-            Vector2 textPos = { bounds.x + (bounds.width - textDim.x) / 2.0f, bounds.y + (bounds.height - textDim.y) / 2.0f };
+        DrawTextEx(
+            themeFont,
+            TITLE,
+            {
+                (screenWidth - titleWidth) / 2.0f,
+                TITLE_POS_Y
+            },
+            TITLE_FONT_SIZE,
+            TITLE_SPACING,
+            TEXT_HOVER
+        );
 
-            if (isHovered) {
-                DrawRectangle(bounds.x + 100, bounds.y + bounds.height - 10, bounds.width - 200, 2, TEXT_HOVER);
-            }
+        DrawButton(
+            startButton,
+            "OYUNA BASLA",
+            mousePosition,
+            buttonFont
+        );
 
-            DrawTextEx(font, text, textPos, textFontSize, spacing, currentText);
-        };
+        DrawButton(
+            settingsButton,
+            "AYARLAR",
+            mousePosition,
+            buttonFont
+        );
 
-        DrawModernButton(startButton, "OYUNA BASLA", mousePos, buttonFont);
-        DrawModernButton(settingsButton, "AYARLAR", mousePos, buttonFont);
-        DrawModernButton(exitButton, "CIKIS", mousePos, buttonFont);
+        DrawButton(
+            exitButton,
+            "CIKIS",
+            mousePosition,
+            buttonFont
+        );
     }
 
     void Close() {
-        UnloadFont(themeFont);
-        UnloadTexture(bgTexture);
+
+        if (themeFont.texture.id != 0) {
+            UnloadFont(themeFont);
+        }
+
+        if (backgroundTexture.id != 0) {
+            UnloadTexture(backgroundTexture);
+        }
     }
-}
+
+} // namespace Interface::UI::MainMenuRenderer

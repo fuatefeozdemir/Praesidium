@@ -3,32 +3,34 @@
 
 namespace Engine::Core {
 
-    // Ortak Arayüz (Interface)
+    // Base game state interface
     class IGameState {
     public:
         virtual ~IGameState() = default;
+
         virtual void Update(Data::CoreData::GameContext* context) = 0;
         virtual void Draw(Data::CoreData::GameContext* context) = 0;
     };
 
-    // Ana Menü Durumu
+    // Main menu state
     class MainMenuState : public IGameState {
     public:
         void Update(Data::CoreData::GameContext* context) override;
         void Draw(Data::CoreData::GameContext* context) override;
     };
 
-    // Simülasyon Durumu
+    // Active simulation state
     class ActiveSimulationState : public IGameState {
     public:
         void Update(Data::CoreData::GameContext* context) override;
         void Draw(Data::CoreData::GameContext* context) override;
     };
 
-    // Duraklatma Durumu
+    // Pause menu state
     class PausedState : public IGameState {
     public:
         void Update(Data::CoreData::GameContext* context) override;
         void Draw(Data::CoreData::GameContext* context) override;
     };
-}
+
+} // namespace Engine::Core

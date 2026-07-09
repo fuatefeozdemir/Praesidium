@@ -1,6 +1,11 @@
 #pragma once
 
 namespace Engine::Config {
-    // Tüm sistemlerin (Renderer, Map, Player, vb.) referans alacağı tek kaynak
+
+    // Shared engine constants
     constexpr int TILE_SIZE = 32;
-}
+
+    // TODO: Move additional engine-wide constants here
+    // (camera, rendering, simulation, UI, etc.).
+
+} // namespace Engine::Config

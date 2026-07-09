@@ -1,20 +1,25 @@
 #pragma once
 
 namespace Data::WorldData {
-    enum class ItemType { 
-        NONE, 
-        IRON_ORE, 
-        COPPER_ORE, 
-        COAL, 
-        IRON_INGOT, 
-        COPPER_INGOT,
+
+    // Defines every item available in the game.
+    enum class ItemType {
+        NONE,
+
+        IRON_ORE,
+        COPPER_ORE,
+        COAL,
         WATER,
 
-        MAX_ITEM_COUNT // sonda olmalı
+        IRON_INGOT,
+        COPPER_INGOT,
+
+        MAX_ITEM_COUNT // Must remain the last entry.
     };
 
     struct ItemAmount {
         ItemType type;
         int amount;
     };
+
 }

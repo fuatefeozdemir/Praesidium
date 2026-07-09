@@ -1,143 +1,193 @@
 #include "../../include/Systems/MapSystem.h"
+
 #include "../../include/Engine/Config/WorldConfig.h"
+
+namespace {
+
+    int FloorDivide(int value, int divisor) {
+        return value >= 0
+            ? value / divisor
+            : (value - divisor + 1) / divisor;
+    }
+
+} // namespace
 
 namespace Systems::MapSystem {
 
-    // ==========================================
-    // KOORDİNAT VE YARDIMCI FONKSİYONLAR
-    // ==========================================
-
     Data::CoreData::Vector2Int PixelToTile(int pixelX, int pixelY) {
-        int tileX = pixelX >= 0 ? pixelX / Engine::Config::TILE_SIZE : (pixelX - Engine::Config::TILE_SIZE + 1) / Engine::Config::TILE_SIZE;
-        int tileY = pixelY >= 0 ? pixelY / Engine::Config::TILE_SIZE : (pixelY - Engine::Config::TILE_SIZE + 1) / Engine::Config::TILE_SIZE;
-        return {tileX, tileY};
+        return {
+            FloorDivide(pixelX, Engine::Config::TILE_SIZE),
+            FloorDivide(pixelY, Engine::Config::TILE_SIZE)
+        };
     }
 
     Data::CoreData::Vector2Int WorldToChunk(Data::CoreData::Vector2Int worldPos) {
-        // Tamsayı bölmesinde negatif koordinatların 0'a yuvarlanmasını engelleyen formül
-        int chunkX = worldPos.x >= 0 ? worldPos.x / Data::WorldData::CHUNK_SIZE : (worldPos.x - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
-        int chunkY = worldPos.y >= 0 ? worldPos.y / Data::WorldData::CHUNK_SIZE : (worldPos.y - Data::WorldData::CHUNK_SIZE + 1) / Data::WorldData::CHUNK_SIZE;
-        return {chunkX, chunkY};
+        return {
+            FloorDivide(worldPos.x, Data::WorldData::CHUNK_SIZE),
+            FloorDivide(worldPos.y, Data::WorldData::CHUNK_SIZE)
+        };
     }
 
     Data::CoreData::Vector2Int WorldToLocal(Data::CoreData::Vector2Int worldPos) {
-        Data::CoreData::Vector2Int chunkPos = WorldToChunk(worldPos);
-        int localX = worldPos.x - (chunkPos.x * Data::WorldData::CHUNK_SIZE);
-        int localY = worldPos.y - (chunkPos.y * Data::WorldData::CHUNK_SIZE);
-        return {localX, localY};
+        const auto chunkPos = WorldToChunk(worldPos);
+
+        return {
+            worldPos.x - chunkPos.x * Data::WorldData::CHUNK_SIZE,
+            worldPos.y - chunkPos.y * Data::WorldData::CHUNK_SIZE
+        };
     }
 
     int LocalToIndex(Data::CoreData::Vector2Int localPos) {
         return localPos.y * Data::WorldData::CHUNK_SIZE + localPos.x;
     }
 
-    bool IsInsideWorld(const Data::WorldData::Map& map, Data::CoreData::Vector2Int chunkPos) {
-        // 0 değeri sınır olmadığını (sonsuz harita) ifade eder
-        if (map.worldWidthChunks > 0 && map.worldHeightChunks > 0) {
-            if (chunkPos.x < 0 || chunkPos.x >= map.worldWidthChunks || chunkPos.y < 0 || chunkPos.y >= map.worldHeightChunks) {
+    bool IsInsideWorld(const Data::WorldData::Map& map,
+                       Data::CoreData::Vector2Int chunkPos) {
+
+        if (map.worldWidthChunks > 0 &&
+            map.worldHeightChunks > 0) {
+
+            if (chunkPos.x < 0 ||
+                chunkPos.x >= map.worldWidthChunks ||
+                chunkPos.y < 0 ||
+                chunkPos.y >= map.worldHeightChunks) {
                 return false;
             }
         }
+
         return true;
     }
 
-    // ==========================================
-    // TILE ERİŞİM API
-    // ==========================================
+    void SetTileBuildingID(
+        Data::WorldData::Map& map,
+        Data::CoreData::Vector2Int worldPos,
+        Data::WorldData::BuildingId id) {
 
-    void SetTileBuildingID(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos, Data::WorldData::BuildingId id) {
-        Data::WorldData::Tile* tile = GetOrCreateTile(map, worldPos);
+        auto* tile = GetOrCreateTile(map, worldPos);
+
         if (tile) {
-            tile->buildingID = id;
+            tile->buildingId = id;
         }
     }
 
-    Data::WorldData::Tile* GetTile(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos) {
-        Data::WorldData::Chunk* chunk = GetChunkFromWorldPos(map, worldPos);
-        if (!chunk) return nullptr;
+    Data::WorldData::Tile* GetTile(
+        Data::WorldData::Map& map,
+        Data::CoreData::Vector2Int worldPos) {
 
-        return &chunk->tiles[LocalToIndex(WorldToLocal(worldPos))];
+        auto* chunk = GetChunkFromWorldPos(map, worldPos);
+
+        if (!chunk) {
+            return nullptr;
+        }
+
+        return &chunk->tiles[
+            LocalToIndex(WorldToLocal(worldPos))
+        ];
     }
 
-    Data::WorldData::Tile* GetOrCreateTile(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos) {
-        Data::CoreData::Vector2Int chunkPos = WorldToChunk(worldPos);
+    Data::WorldData::Tile* GetOrCreateTile(
+        Data::WorldData::Map& map,
+        Data::CoreData::Vector2Int worldPos) {
+
+        const auto chunkPos = WorldToChunk(worldPos);
 
         if (!IsInsideWorld(map, chunkPos)) {
             return nullptr;
         }
 
-        Data::WorldData::Chunk& chunk = GetOrCreateChunk(map, chunkPos);
-        return &chunk.tiles[LocalToIndex(WorldToLocal(worldPos))];
+        auto& chunk = GetOrCreateChunk(map, chunkPos);
+
+        return &chunk.tiles[
+            LocalToIndex(WorldToLocal(worldPos))
+        ];
     }
 
-    // ==========================================
-    // CHUNK YÖNETİM API
-    // ==========================================
+    void Initialize(
+        Data::WorldData::Map& map,
+        uint64_t seed,
+        int widthChunks,
+        int heightChunks) {
 
-    void Initialize(Data::WorldData::Map& map, uint64_t seed, int widthChunks, int heightChunks) {
         map.chunks.clear();
+
         map.worldSeed = seed;
         map.worldWidthChunks = widthChunks;
         map.worldHeightChunks = heightChunks;
-        map.nextBuildingID = 1;
 
-        // Havuz sayaçlarının sıfırlanması yeni entity tahsislerini başa sarar
-        map.activeBuildingCount = 0;
-        map.activeHealthCount = 0;
-        map.activeInventoryCount = 0;
-        map.activeProductionCount = 0;
-        map.activeExtractorCount = 0;
-        map.activePowerProducerCount = 0;
-        map.activePowerConsumerCount = 0;
-        map.activeConveyorCount = 0;
-        map.activeSplitterCount = 0;
+        map.nextBuildingId = 1;
+
+        map.buildingCount = 0;
+        map.healthCount = 0;
+        map.inventoryCount = 0;
+        map.productionCount = 0;
+        map.extractorCount = 0;
+        map.powerProducerCount = 0;
+        map.powerConsumerCount = 0;
+        map.conveyorCount = 0;
+        map.splitterCount = 0;
     }
 
-    Data::WorldData::Chunk* GetChunk(Data::WorldData::Map& map, Data::CoreData::Vector2Int chunkPos) {
+    Data::WorldData::Chunk* GetChunk(
+        Data::WorldData::Map& map,
+        Data::CoreData::Vector2Int chunkPos) {
+
         auto it = map.chunks.find(chunkPos);
-        if (it != map.chunks.end()) {
-            return &it->second;
+
+        if (it == map.chunks.end()) {
+            return nullptr;
         }
-        return nullptr;
+
+        return &it->second;
     }
 
-    Data::WorldData::Chunk* GetChunkFromWorldPos(Data::WorldData::Map& map, Data::CoreData::Vector2Int worldPos) {
+    Data::WorldData::Chunk* GetChunkFromWorldPos(
+        Data::WorldData::Map& map,
+        Data::CoreData::Vector2Int worldPos) {
+
         return GetChunk(map, WorldToChunk(worldPos));
     }
 
-    Data::WorldData::Chunk& CreateChunk(Data::WorldData::Map& map, Data::CoreData::Vector2Int chunkPos) {
-        // Mevcut bir Chunk varsa veri kaybını (Data Wipe) önlemek için işlemi iptal et
+    Data::WorldData::Chunk& CreateChunk(
+        Data::WorldData::Map& map,
+        Data::CoreData::Vector2Int chunkPos) {
+
         auto it = map.chunks.find(chunkPos);
+
         if (it != map.chunks.end()) {
             return it->second;
         }
 
         auto& chunk = map.chunks[chunkPos];
 
-        // Struct içindeki potansiyel çöp verileri (Garbage Data) temizle
         chunk = {};
 
         chunk.position = chunkPos;
         chunk.isLoaded = true;
-        chunk.needsSimulation = true;
         chunk.isModified = false;
+        chunk.needsSimulation = true;
 
-        // Zemin ve varsayılan Tile değerlerinin atanması
+        // TODO: Replace default tile initialization with procedural world generation.
         for (int i = 0; i < Data::WorldData::CHUNK_SIZE * Data::WorldData::CHUNK_SIZE; ++i) {
             chunk.tiles[i].floor = Data::WorldData::FloorType::STONE;
             chunk.tiles[i].ore = Data::WorldData::ItemType::NONE;
-            chunk.tiles[i].buildingID = -1;
+            chunk.tiles[i].buildingId = -1;
             chunk.tiles[i].isPassable = true;
         }
 
         return chunk;
     }
 
-    Data::WorldData::Chunk& GetOrCreateChunk(Data::WorldData::Map& map, Data::CoreData::Vector2Int chunkPos) {
+    Data::WorldData::Chunk& GetOrCreateChunk(
+        Data::WorldData::Map& map,
+        Data::CoreData::Vector2Int chunkPos) {
+
         auto it = map.chunks.find(chunkPos);
+
         if (it != map.chunks.end()) {
             return it->second;
         }
+
         return CreateChunk(map, chunkPos);
     }
-}
+
+} // namespace Systems::MapSystem

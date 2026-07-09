@@ -22,7 +22,6 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         src/Systems/BuildingSystem.cpp
         include/Data/EntityData/ActionData.h
         src/Systems/InteractionSystem.cpp
-        include/Interface/World/FloatingText.h
         src/Systems/MapSystem.cpp
         include/Data/UIData/BuildingMenuData.h
         src/Systems/BuildingMenuSystem.cpp

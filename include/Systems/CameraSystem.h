@@ -3,27 +3,27 @@
 
 namespace Systems::CameraSystem {
 
-    // Başlangıç ayarlarını yapar
+    // Initialization
     void Initialize();
 
-    // Her frame çağrılır (Zoom mantığını yönetir)
+    // Update
     void Update();
 
-    // Çizim modlarını başlatır ve bitirir
+    // Drawing
     void BeginWorldDrawing();
     void EndWorldDrawing();
 
-    // Temel Kamera Manipülasyonları
+    // Camera controls
     void SetTarget(Vector2 target);
     void SetZoom(float zoom);
     void Move(Vector2 delta);
 
-    // Koordinat Dönüşümleri ve Bilgi
+    // Coordinate conversion
     Vector2 GetWorldMousePosition();
     Vector2 ScreenToWorld(Vector2 position);
     Vector2 WorldToScreen(Vector2 position);
 
-    // Raylib fonksiyonları için kamera verisine doğrudan referans erişimi
+    // Camera access
     const Camera2D& GetCamera();
 
-}
+} // namespace Systems::CameraSystem

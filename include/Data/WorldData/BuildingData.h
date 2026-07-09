@@ -1,8 +1,7 @@
 #pragma once
-#include "raylib.h"
-#include "ItemData.h"
-#include "RecipeData.h"
+
 #include "../CoreData/Vector2Int.h"
+#include "ItemData.h"
 
 namespace Data::WorldData {
 
@@ -16,7 +15,7 @@ namespace Data::WorldData {
         CONVEYOR_BELT,
         SPLITTER,
         COAL_GENERATOR
-        // İleride genişletilecek
+        // TODO: Expand with additional buildings.
     };
 
     enum class BuildingState {
@@ -28,19 +27,21 @@ namespace Data::WorldData {
     };
 
     enum class Direction {
-        NORTH, EAST, SOUTH, WEST
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
     };
 
-    // ==========================================
-    // STATİK BİNA TANIMLARI (
-    // ==========================================
+    // Static Building Definitions
+
     struct BuildingDefinition {
         BuildingType type;
         CoreData::Vector2Int defaultSize;
         int baseHealth;
         int maxTier;
 
-        // Component İhtiyaç Flags
+        // Component Flags
         bool hasHealth;
         bool hasInventory;
         bool hasProduction;
@@ -51,7 +52,8 @@ namespace Data::WorldData {
         bool hasSplitter;
     };
 
-    // ilerde json olarak değiştirilebilir
+    // TODO: Load building definitions from external data.
+
     inline constexpr BuildingDefinition BuildingRegistry[] = {
         // Type,                       Size,   HP,   Tier, Health, Inv,   Prod,  Ext,   PwrProd, PwrCons, Conv,  Split
         { BuildingType::WALL,          {1, 1}, 500,  1,    true,   false, false, false, false,   false,   false, false },
@@ -63,15 +65,17 @@ namespace Data::WorldData {
     };
 
     inline const BuildingDefinition* GetBuildingDefinition(BuildingType type) {
-        for (const auto& def : BuildingRegistry) {
-            if (def.type == type) return &def;
+        for (const auto& definition : BuildingRegistry) {
+            if (definition.type == type) {
+                return &definition;
+            }
         }
+
         return nullptr;
     }
 
-    // ==========================================
-    // ANA YAPI
-    // ==========================================
+    // Building Instance
+
     struct Building {
         BuildingId id = 0;
         BuildingType type = BuildingType::NONE;
@@ -82,7 +86,7 @@ namespace Data::WorldData {
         CoreData::Vector2Int size = {1, 1};
         Direction direction = Direction::NORTH;
 
-        // Component İndeksleri (-1 = Yok)
+        // Component Indices (-1 = Not Assigned)
         int inventoryIndex = -1;
         int productionIndex = -1;
         int extractorIndex = -1;
@@ -93,9 +97,7 @@ namespace Data::WorldData {
         int healthIndex = -1;
     };
 
-    // ==========================================
-    // COMPONENTS
-    // ==========================================
+    // Components
 
     struct HealthComponent {
         BuildingId buildingId = -1;
@@ -145,4 +147,5 @@ namespace Data::WorldData {
         BuildingId buildingId = -1;
         int outputCounter = 0;
     };
-}
+
+} // namespace Data::WorldData

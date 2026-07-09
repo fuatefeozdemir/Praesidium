@@ -1,18 +1,18 @@
 #pragma once
-#include "raylib.h"
+
 #include <string>
 #include <vector>
 
+#include "../CoreData/Vector2Int.h"
+#include "../WorldData/ItemData.h"
+
 namespace Data::EntityData {
 
-    struct Vector2Int {
-        int x;
-        int y;
-    };
-
+    // TODO: Move InventorySlot to a shared InventoryData module.
+    // This structure will also be used by buildings, storage containers, and vehicles.
     struct InventorySlot {
-        int itemID;
-        int count;
+        Data::WorldData::ItemType type = Data::WorldData::ItemType::NONE;
+        int amount = 0;
     };
 
     enum class PlayerActionState {
@@ -22,26 +22,27 @@ namespace Data::EntityData {
     };
 
     struct Player {
-        // Kimlik
+        // Identity
         std::string name;
 
-        // Fizik ve Hareket
-        Vector2Int position;
-        int speed;
-        int collisionRadius;
+        // Movement
+        Data::CoreData::Vector2Int position;
+        int speed = 0;
+        int collisionRadius = 0;
 
-        // Durum ve İstatistikler
-        PlayerActionState state;
-        int health;
-        int maxHealth;
+        // Stats
+        PlayerActionState state = PlayerActionState::IDLE;
+        int health = 0;
+        int maxHealth = 0;
 
-        // Envanter
-        int maxSlots;
+        // Inventory
+        int maxSlots = 0;
         std::vector<InventorySlot> inventory;
 
-        // Etkileşim süresi takibi için
+        // Interaction
         int actionTimer = 0;
         int lastTargetX = -1;
         int lastTargetY = -1;
     };
-}
+
+} // namespace Data::EntityData
