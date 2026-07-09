@@ -17,7 +17,7 @@ namespace Engine::Core::Application {
 
         void InitializeGame(Data::CoreData::GameContext& context) {
             Interface::UI::MainMenuRenderer::Initialize();
-            context.player = {"Oyuncu", {0, 0}, 300000, 15000, Data::EntityData::PlayerActionState::IDLE, 100, 100, 20, {}};
+            context.player = {"Oyuncu", {0, 0}, 300, 16, Data::EntityData::PlayerActionState::IDLE, 100, 100, 20, {}};
 
             // Seed değeri 12345 olarak belirlendi, testler için 100x100 Chunk'lık (3200x3200 Tile) bir dünya sınırı kondu.
             Systems::MapSystem::Initialize(context.worldMap, 12345, 100, 100);
