@@ -22,6 +22,7 @@ namespace Systems::CameraSystem {
     Vector2 GetWorldMousePosition();
     Vector2 ScreenToWorld(Vector2 position);
     Vector2 WorldToScreen(Vector2 position);
+    Rectangle GetViewBounds();
 
     // Camera access
     const Camera2D& GetCamera();

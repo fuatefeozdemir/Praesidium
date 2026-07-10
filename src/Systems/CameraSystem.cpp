@@ -68,6 +68,21 @@ namespace Systems::CameraSystem {
         return GetWorldToScreen2D(position, camera);
     }
 
+    Rectangle GetViewBounds() {
+        Vector2 topLeft = ScreenToWorld({0.0f, 0.0f});
+        Vector2 bottomRight = ScreenToWorld({
+            static_cast<float>(GetScreenWidth()),
+            static_cast<float>(GetScreenHeight())
+        });
+
+        return {
+            topLeft.x,
+            topLeft.y,
+            bottomRight.x - topLeft.x,
+            bottomRight.y - topLeft.y
+        };
+    }
+
     const Camera2D& GetCamera() {
         return camera;
     }
