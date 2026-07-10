@@ -6,6 +6,7 @@
 #include "../../../include/Interface/World/PlayerRenderer.h"
 #include "../../../include/Systems/CameraSystem.h"
 #include "../../../include/Systems/PlayerSystem.h"
+#include "../../../include/Systems/ChunkSystem.h"
 
 #include "raylib.h"
 
@@ -36,13 +37,20 @@ namespace Engine::Core {
     // Active simulation state
 
     void ActiveSimulationState::Update(Data::CoreData::GameContext* context) {
+
         Systems::PlayerSystem::Update(context);
 
-        Systems::CameraSystem::SetTarget(ToVector2(context->player.position));
+        Systems::CameraSystem::SetTarget(
+            ToVector2(context->player.position)
+        );
+
         Systems::CameraSystem::Update();
 
+        Systems::ChunkSystem::Update(context);
+
         if (IsKeyPressed(KEY_ESCAPE)) {
-            context->currentState = Data::CoreData::AppState::PAUSED;
+            context->currentState =
+                Data::CoreData::AppState::PAUSED;
         }
     }
 

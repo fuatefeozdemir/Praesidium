@@ -26,11 +26,14 @@ namespace {
         const Vector2 cameraPosition =
             Systems::CameraSystem::GetCamera().target;
 
-        currentCameraChunk =
-            Systems::MapSystem::WorldToChunk({
+        const Data::CoreData::Vector2Int cameraTilePosition =
+            Systems::MapSystem::PixelToTile(
                 static_cast<int>(cameraPosition.x),
                 static_cast<int>(cameraPosition.y)
-            });
+            );
+
+        currentCameraChunk =
+            Systems::MapSystem::WorldToChunk(cameraTilePosition);
     }
 
     void RebuildVisibleChunkCache() {

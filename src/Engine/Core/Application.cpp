@@ -7,6 +7,7 @@
 
 #include "../../../include/Systems/CameraSystem.h"
 #include "../../../include/Systems/MapSystem.h"
+#include "../../../include/Systems/ChunkSystem.h"
 
 #include "raylib.h"
 
@@ -21,8 +22,11 @@ namespace Engine::Core::Application {
         constexpr double FIXED_TIME_STEP = 1.0 / 60.0;
 
         void InitializeEngine() {
+
             Window::Initialize();
+
             Systems::CameraSystem::Initialize();
+            Systems::ChunkSystem::Initialize();
         }
 
         void InitializeGame(Data::CoreData::GameContext& context) {
