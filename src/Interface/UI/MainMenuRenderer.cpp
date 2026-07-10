@@ -1,5 +1,7 @@
 #include "../../../../include/Interface/UI/MainMenuRenderer.h"
 
+#include <algorithm>
+
 #include "raylib.h"
 
 namespace {
@@ -26,6 +28,51 @@ namespace {
     Font themeFont{};
     Font buttonFont{};
     Texture2D backgroundTexture{};
+
+    void DrawBackground() {
+
+        if (backgroundTexture.id == 0) {
+            return;
+        }
+
+        const float screenWidth =
+            static_cast<float>(GetScreenWidth());
+
+        const float screenHeight =
+            static_cast<float>(GetScreenHeight());
+
+        const float scale = std::max(
+            screenWidth / backgroundTexture.width,
+            screenHeight / backgroundTexture.height
+        );
+
+        const float width =
+            backgroundTexture.width * scale;
+
+        const float height =
+            backgroundTexture.height * scale;
+
+        const Rectangle destination = {
+            (screenWidth - width) * 0.5f,
+            (screenHeight - height) * 0.5f,
+            width,
+            height
+        };
+
+        DrawTexturePro(
+            backgroundTexture,
+            {
+                0.0f,
+                0.0f,
+                static_cast<float>(backgroundTexture.width),
+                static_cast<float>(backgroundTexture.height)
+            },
+            destination,
+            {0.0f, 0.0f},
+            0.0f,
+            WHITE
+        );
+    }
 
     void DrawButton(
         Rectangle bounds,
@@ -160,27 +207,7 @@ namespace Interface::UI::MainMenuRenderer {
 
         ClearBackground(BLACK);
 
-        if (backgroundTexture.id != 0) {
-
-            DrawTexturePro(
-                backgroundTexture,
-                {
-                    0.0f,
-                    0.0f,
-                    static_cast<float>(backgroundTexture.width),
-                    static_cast<float>(backgroundTexture.height)
-                },
-                {
-                    0.0f,
-                    0.0f,
-                    static_cast<float>(screenWidth),
-                    static_cast<float>(screenHeight)
-                },
-                { 0.0f, 0.0f },
-                0.0f,
-                WHITE
-            );
-        }
+        DrawBackground();
 
         DrawRectangle(
             (screenWidth - PANEL_WIDTH) / 2,
