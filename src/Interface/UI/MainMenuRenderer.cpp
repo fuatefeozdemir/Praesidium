@@ -68,32 +68,10 @@ namespace {
         );
     }
 
-} // namespace
-
-namespace Interface::UI::MainMenuRenderer {
-
-    void Initialize() {
+    void UpdateLayout() {
 
         const int screenWidth = GetScreenWidth();
         const int screenHeight = GetScreenHeight();
-
-        themeFont = LoadFontEx(
-            ASSETS_DIR "fonts/theme_font.ttf",
-            96,
-            nullptr,
-            0
-        );
-
-        SetTextureFilter(
-            themeFont.texture,
-            TEXTURE_FILTER_BILINEAR
-        );
-
-        buttonFont = GetFontDefault();
-
-        backgroundTexture = LoadTexture(
-            ASSETS_DIR "textures/mainmenu_bg.png"
-        );
 
         const int totalButtonsHeight =
             (3 * BUTTON_HEIGHT) + (2 * BUTTON_SPACING);
@@ -122,7 +100,35 @@ namespace Interface::UI::MainMenuRenderer {
             static_cast<float>(BUTTON_HEIGHT)
         };
     }
-        void Update(Data::CoreData::AppState& currentState) {
+
+} // namespace
+
+namespace Interface::UI::MainMenuRenderer {
+
+    void Initialize() {
+
+        themeFont = LoadFontEx(
+            ASSETS_DIR "fonts/theme_font.ttf",
+            96,
+            nullptr,
+            0
+        );
+
+        SetTextureFilter(
+            themeFont.texture,
+            TEXTURE_FILTER_BILINEAR
+        );
+
+        buttonFont = GetFontDefault();
+
+        backgroundTexture = LoadTexture(
+            ASSETS_DIR "textures/mainmenu_bg.png"
+        );
+
+        UpdateLayout();
+    }
+
+    void Update(Data::CoreData::AppState& currentState) {
 
         const Vector2 mousePosition = GetMousePosition();
 
@@ -146,6 +152,7 @@ namespace Interface::UI::MainMenuRenderer {
     }
 
     void Draw() {
+        UpdateLayout();
 
         const int screenWidth = GetScreenWidth();
         const int screenHeight = GetScreenHeight();

@@ -26,6 +26,10 @@ namespace Systems::CameraSystem {
     }
 
     void Update() {
+        camera.offset = {
+            static_cast<float>(GetScreenWidth()) * 0.5f,
+            static_cast<float>(GetScreenHeight()) * 0.5f
+        };
         float wheelMove = GetMouseWheelMove();
 
         if (wheelMove != 0.0f) {
