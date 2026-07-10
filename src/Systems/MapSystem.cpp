@@ -162,9 +162,7 @@ namespace Systems::MapSystem {
         chunk = {};
 
         chunk.position = chunkPos;
-        chunk.isLoaded = true;
-        chunk.isModified = false;
-        chunk.needsSimulation = true;
+        chunk.state = Data::WorldData::ChunkState::UNLOADED;
 
         // TODO: Replace default tile initialization with procedural world generation.
         for (int i = 0; i < Data::WorldData::CHUNK_SIZE * Data::WorldData::CHUNK_SIZE; ++i) {

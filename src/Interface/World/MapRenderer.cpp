@@ -2,6 +2,8 @@
 
 #include "raylib.h"
 
+#include "../../../include/Systems/ChunkSystem.h"
+
 namespace {
 
     constexpr float TILE_SIZE_PIXELS = 32.0f;
@@ -14,6 +16,7 @@ namespace {
         Color color = DARKGRAY;
 
         switch (tile.floor) {
+
             case Data::WorldData::FloorType::DIRT:
                 color = BROWN;
                 break;
@@ -55,6 +58,7 @@ namespace {
         Color color = MAGENTA;
 
         switch (tile.ore) {
+
             case Data::WorldData::ItemType::IRON_ORE:
                 color = ORANGE;
                 break;
@@ -122,6 +126,11 @@ namespace {
 
     void DrawBuildings(const Data::WorldData::Map& map) {
 
+        // TODO:
+        // Replace this with the future BuildingRenderer.
+        // Buildings should eventually be rendered through
+        // the spatial index instead of iterating over every building.
+
         for (int i = 0; i < map.buildingCount; ++i) {
 
             const auto& building = map.buildings[i];
@@ -137,10 +146,6 @@ namespace {
     }
 
     void DrawChunk(const Data::WorldData::Chunk& chunk) {
-
-        if (!chunk.isLoaded) {
-            return;
-        }
 
         for (int i = 0; i < Data::WorldData::CHUNK_SIZE * Data::WorldData::CHUNK_SIZE; ++i) {
 
@@ -165,26 +170,24 @@ namespace {
 
     void DrawDebug(const Data::WorldData::Map&) {
 
-        // TODO: Render chunk boundaries, power networks,
+        // TODO:
+        // Render chunk boundaries, power networks,
         // logistics overlays and other debug information.
     }
 
-}
+} // namespace
 
 namespace Interface::World::MapRenderer {
 
     void Draw(const Data::WorldData::Map& map) {
 
-        for (const auto& [position, chunk] : map.chunks) {
-
-            (void)position;
-
-            // TODO: Skip chunks outside the camera view.
-            DrawChunk(chunk);
+        // Draw only chunks inside the current camera view.
+        for (const auto* chunk : Systems::ChunkSystem::GetVisibleChunks()) {
+            DrawChunk(*chunk);
         }
 
         DrawBuildings(map);
         DrawDebug(map);
     }
 
-}
+} // namespace Interface::World::MapRenderer

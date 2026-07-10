@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <vector>
 
 #include "../CoreData/Vector2Int.h"
 #include "BuildingData.h"
@@ -28,6 +29,12 @@ namespace Data::WorldData {
         WATER
     };
 
+    enum class ChunkState {
+        UNLOADED,
+        LOADED,
+        VISIBLE
+    };
+
     // Spatial Data
 
     struct Tile {
@@ -39,12 +46,12 @@ namespace Data::WorldData {
 
     struct Chunk {
         CoreData::Vector2Int position;
-
-        bool isLoaded = false;
-        bool isModified = false;
-        bool needsSimulation = false;
+        ChunkState state = ChunkState::UNLOADED;
 
         Tile tiles[CHUNK_SIZE * CHUNK_SIZE];
+
+        // Spatial Index
+        std::vector<BuildingId> buildingIds;
     };
 
     struct Vector2IntHash {

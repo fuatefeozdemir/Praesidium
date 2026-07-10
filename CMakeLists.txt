@@ -41,6 +41,8 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Engine/Config/WorldConfig.h
         include/Interface/World/PlayerRenderer.h
         src/Interface/World/PlayerRenderer.cpp
+        include/Systems/ChunkSystem.h
+        src/Systems/ChunkSystem.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)
