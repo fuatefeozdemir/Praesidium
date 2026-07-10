@@ -39,6 +39,8 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         include/Systems/CameraSystem.h
         src/Systems/CameraSystem.cpp
         include/Engine/Config/WorldConfig.h
+        include/Interface/World/PlayerRenderer.h
+        src/Interface/World/PlayerRenderer.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)

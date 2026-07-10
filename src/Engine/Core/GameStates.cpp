@@ -3,6 +3,7 @@
 #include "../../../include/Interface/UI/BuildingMenuRenderer.h"
 #include "../../../include/Interface/UI/MainMenuRenderer.h"
 #include "../../../include/Interface/World/MapRenderer.h"
+#include "../../../include/Interface/World/PlayerRenderer.h"
 #include "../../../include/Systems/CameraSystem.h"
 #include "../../../include/Systems/PlayerSystem.h"
 
@@ -17,7 +18,7 @@ namespace {
         };
     }
 
-}
+} // namespace
 
 namespace Engine::Core {
 
@@ -51,6 +52,7 @@ namespace Engine::Core {
         Systems::CameraSystem::BeginWorldDrawing();
 
         Interface::World::MapRenderer::Draw(context->worldMap);
+        Interface::World::PlayerRenderer::Draw(context->player);
 
         Systems::CameraSystem::EndWorldDrawing();
 
