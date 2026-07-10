@@ -92,7 +92,7 @@ namespace Interface::UI::MainMenuRenderer {
         buttonFont = GetFontDefault();
 
         backgroundTexture = LoadTexture(
-            ASSETS_DIR "textures/bg_wood.png"
+            ASSETS_DIR "textures/mainmenu_bg.png"
         );
 
         const int totalButtonsHeight =
