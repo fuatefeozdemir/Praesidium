@@ -31,7 +31,7 @@ namespace Engine::Core::Application {
 
             context.player = {
                 "Oyuncu",
-                {0, 0},
+                {5000, 5000},
                 300,
                 16,
                 Data::EntityData::PlayerActionState::IDLE,
