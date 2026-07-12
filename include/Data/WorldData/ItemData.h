@@ -17,9 +17,14 @@ namespace Data::WorldData {
         MAX_ITEM_COUNT // Must remain the last entry.
     };
 
-    struct ItemAmount {
-        ItemType type;
-        int amount;
+    struct Item {
+        ItemType type = ItemType::NONE;
     };
 
-}
+    // Used for inventories, recipes and crafting costs.
+    struct ItemAmount {
+        ItemType type = ItemType::NONE;
+        int amount = 0;
+    };
+
+} // namespace Data::WorldData
