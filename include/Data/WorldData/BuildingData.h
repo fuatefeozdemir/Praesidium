@@ -140,6 +140,8 @@ namespace Data::WorldData {
 
     constexpr int MAX_CONVEYOR_ITEMS = 4;
     constexpr int CONVEYOR_PROGRESS_PER_TILE = 1024;
+    constexpr int CONVEYOR_ITEM_SPACING =
+    CONVEYOR_PROGRESS_PER_TILE / MAX_CONVEYOR_ITEMS;
 
     struct ConveyorItem {
         Item item;
