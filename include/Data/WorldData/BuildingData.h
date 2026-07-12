@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "../CoreData/Vector2Int.h"
 #include "ItemData.h"
 
@@ -51,6 +53,8 @@ namespace Data::WorldData {
         bool hasConveyor;
         bool hasSplitter;
     };
+
+    constexpr int CONVEYOR_PROGRESS_PER_TILE = 1024;
 
     // TODO: Load building definitions from external data.
 
@@ -136,11 +140,23 @@ namespace Data::WorldData {
         bool isPowered = false;
     };
 
+    constexpr int MAX_CONVEYOR_ITEMS = 4;
+
+    struct ConveyorItem {
+        Item item;
+        uint16_t progress = 0; // 0-1024
+    };
+
     struct ConveyorComponent {
         BuildingId buildingId = -1;
-        ItemType currentItem = ItemType::NONE;
-        int progressTick = 0;
-        int ticksToMove = 0;
+
+        BuildingId previousBuildingId = -1;
+        BuildingId nextBuildingId = -1;
+
+        ConveyorItem items[MAX_CONVEYOR_ITEMS];
+        int itemCount = 0;
+
+        int speedPerTick = 16;
     };
 
     struct SplitterComponent {
