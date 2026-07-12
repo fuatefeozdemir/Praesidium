@@ -43,6 +43,8 @@ add_executable(Praesidium ${SOURCES} ${HEADERS}
         src/Interface/World/PlayerRenderer.cpp
         include/Systems/ChunkSystem.h
         src/Systems/ChunkSystem.cpp
+        include/Systems/ConveyorSystem.h
+        src/Systems/ConveyorSystem.cpp
 )
 
 target_link_libraries(Praesidium PRIVATE raylib)
