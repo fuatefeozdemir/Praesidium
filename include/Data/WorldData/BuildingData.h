@@ -54,8 +54,6 @@ namespace Data::WorldData {
         bool hasSplitter;
     };
 
-    constexpr int CONVEYOR_PROGRESS_PER_TILE = 1024;
-
     // TODO: Load building definitions from external data.
 
     inline constexpr BuildingDefinition BuildingRegistry[] = {
@@ -141,6 +139,7 @@ namespace Data::WorldData {
     };
 
     constexpr int MAX_CONVEYOR_ITEMS = 4;
+    constexpr int CONVEYOR_PROGRESS_PER_TILE = 1024;
 
     struct ConveyorItem {
         Item item;
